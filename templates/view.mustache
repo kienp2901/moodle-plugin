@@ -1,0 +1,164 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_stepbystep/view
+
+    Step by Step module view template with full-width step content and right-aligned response.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-step-id
+    * data-step-number
+    * data-is-last
+
+    Context variables required for this template:
+    * name - Activity name
+    * intro - Activity description
+    * steps - Array of step objects
+    * totalsteps - Total number of steps
+    * courseurl - URL to return to course
+
+    Example context (json):
+    {
+        "name": "IELTS Reading Tips",
+        "intro": "Learn important tips for IELTS Reading",
+        "steps": [
+            {
+                "id": 1,
+                "type": "vocabulary",
+                "term": "dense forests",
+                "definition": "những cánh rừng rậm rạp",
+                "example": "We hiked through dense forests during our vacation.",
+                "stepnumber": 1,
+                "islast": false,
+                "buttontext": "Got it!"
+            }
+        ],
+        "totalsteps": 1,
+        "courseurl": "/course/view.php?id=2"
+    }
+}}
+
+<div class="stepbystep-container">
+    <h1 class="stepbystep-title">{{{name}}}</h1>
+    
+    {{#intro}}
+    <div class="stepbystep-intro">
+        {{{intro}}}
+    </div>
+    {{/intro}}
+    
+    <div class="stepbystep-steps-container">
+        {{#steps}}
+        <div class="stepbystep-step" data-step-id="{{id}}" data-step-number="{{stepnumber}}" data-is-last="{{islast}}" data-step-type="{{type}}">
+            <!-- Step Content (Full width) -->
+            <div class="stepbystep-step-content-full">
+                <div class="stepbystep-step-header">
+                    <div class="stepbystep-step-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="stepbystep-step-number">
+                        Step {{stepnumber}} of {{totalsteps}}
+                    </div>
+                </div>
+                
+                <div class="stepbystep-step-content">
+                    {{#type_text}}
+                        <!-- Text/Tip type -->
+                        <div class="stepbystep-text-content">
+                            {{#main_title}}
+                                <h2 class="stepbystep-main-title">{{{main_title}}}</h2>
+                            {{/main_title}}
+                            
+                            {{#sub_heading}}
+                                <h3 class="stepbystep-sub-heading">{{{sub_heading}}}</h3>
+                            {{/sub_heading}}
+                            
+                            {{#paragraphs}}
+                                <div class="stepbystep-content-paragraphs">
+                                    {{#.}}
+                                        <p class="stepbystep-paragraph">{{{.}}}</p>
+                                    {{/.}}
+                                </div>
+                            {{/paragraphs}}
+                        </div>
+                    {{/type_text}}
+                    
+                    {{#type_vocabulary}}
+                        <!-- Vocabulary type -->
+                        <div class="stepbystep-vocabulary">
+                            <div class="stepbystep-term">{{{term}}}</div>
+                            {{#definition}}
+                                <div class="stepbystep-definition">
+                                    <div class="stepbystep-definition-label">Definition:</div>
+                                    <div class="stepbystep-definition-text">{{{definition}}}</div>
+                                </div>
+                            {{/definition}}
+                            {{#example}}
+                                <div class="stepbystep-example">
+                                    <div class="stepbystep-example-label">Example:</div>
+                                    <div class="stepbystep-example-text">"{{{example}}}"</div>
+                                </div>
+                            {{/example}}
+                            <div class="stepbystep-audio">
+                                <button class="stepbystep-audio-button" data-audio-url="{{audio_url}}" data-step-id="{{id}}">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 18V5l12-2v13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="6" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                    <span class="audio-text">Listen to pronunciation</span>
+                                </button>
+                            </div>
+                        </div>
+                    {{/type_vocabulary}}
+                </div>
+            </div>
+            
+            <!-- Response Text (Right side) -->
+            <div class="stepbystep-response-section">
+                <div class="stepbystep-response-bubble stepbystep-step-actions stepbystep-continue" style="cursor: pointer;">
+                    {{buttontext}}
+                </div>
+                <div class="stepbystep-response-avatar">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="8" r="5" fill="currentColor"/>
+                        <path d="M20 21c0-4.41-3.59-8-8-8s-8 3.59-8 8" fill="currentColor"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        {{/steps}}
+    </div>
+    
+    <div class="stepbystep-completion" style="display: none;">
+        <div class="stepbystep-completion-icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="24" cy="24" r="20" fill="#4CAF50"/>
+                <path d="M20 24l3 3 5-5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <h2 class="stepbystep-completion-title">Lesson completed!</h2>
+        <p class="stepbystep-completion-text">Excellent! You have completed this lesson.</p>
+        <a href="{{courseurl}}" class="stepbystep-button stepbystep-return">
+            ← Return to course
+        </a>
+    </div>
+</div>

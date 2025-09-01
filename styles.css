@@ -1,0 +1,483 @@
+/* This file is part of Moodle - http://moodle.org/
+ *
+ * Moodle is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moodle is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Step by Step module styles with full-width step content
+ *
+ * @package    mod_stepbystep
+ * @copyright  2024 Your Name <your.email@example.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/* Main container */
+.stepbystep-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+/* Title */
+.stepbystep-title {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+/* Intro */
+.stepbystep-intro {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    color: #666;
+    text-align: center;
+    font-size: 16px;
+    line-height: 1.6;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+}
+
+/* Steps container */
+.stepbystep-steps-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Individual step */
+.stepbystep-step {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: 24px;
+    position: relative;
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.stepbystep-step:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+/* Step content full width */
+.stepbystep-step-content-full {
+    width: 100%;
+}
+
+/* Step header */
+.stepbystep-step-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.stepbystep-step-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.stepbystep-step-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.stepbystep-step-number {
+    font-size: 14px;
+    color: #6c757d;
+    font-weight: 500;
+    background: #f8f9fa;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid #e9ecef;
+}
+
+/* Step content */
+.stepbystep-step-content {
+    margin-bottom: 0;
+}
+
+/* Vocabulary type */
+.stepbystep-vocabulary .stepbystep-term {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.stepbystep-definition,
+.stepbystep-example {
+    margin-bottom: 16px;
+}
+
+.stepbystep-definition-label,
+.stepbystep-example-label {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.stepbystep-definition-text {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    line-height: 1.5;
+    border-left: 4px solid #2196f3;
+}
+
+.stepbystep-example-text {
+    background: #e8f5e8;
+    color: #388e3c;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    line-height: 1.5;
+    font-style: italic;
+    border-left: 4px solid #4caf50;
+}
+
+/* Audio button */
+.stepbystep-audio {
+    margin-top: 20px;
+    text-align: center;
+    float: left;
+}
+
+.stepbystep-audio-button {
+    background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
+}
+
+.stepbystep-audio-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(156, 39, 176, 0.4);
+}
+
+.stepbystep-audio-button.playing {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+}
+
+.stepbystep-audio-button:disabled {
+    background: linear-gradient(135deg, #bdbdbd 0%, #9e9e9e 100%);
+    color: #757575;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    opacity: 0.6;
+}
+
+.stepbystep-audio-button:disabled:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stepbystep-audio-button svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Text type */
+.stepbystep-text-content {
+    font-size: 18px;
+    line-height: 1.7;
+    color: #2c3e50;
+    text-align: left;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+}
+
+/* Text Content Styling */
+.stepbystep-text-content {
+    margin-top: 16px;
+}
+
+.stepbystep-main-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 16px 0;
+    line-height: 1.3;
+    text-align: left;
+}
+
+.stepbystep-sub-heading {
+    font-size: 18px;
+    font-weight: 600;
+    color: #4a5568;
+    margin: 0 0 20px 0;
+    line-height: 1.4;
+    text-align: left;
+}
+
+.stepbystep-content-paragraphs {
+    margin-top: 20px;
+}
+
+.stepbystep-paragraph {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #4a5568;
+    margin: 0 0 16px 0;
+    text-align: justify;
+    padding: 0 8px;
+}
+
+.stepbystep-paragraph:last-child {
+    margin-bottom: 0;
+}
+
+/* Responsive adjustments for text content */
+@media (max-width: 768px) {
+    .stepbystep-main-title {
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+    
+    .stepbystep-sub-heading {
+        font-size: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .stepbystep-paragraph {
+        font-size: 15px;
+        margin-bottom: 14px;
+        padding: 0 4px;
+    }
+}
+
+/* Response section */
+.stepbystep-response-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.stepbystep-response-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.stepbystep-response-avatar svg {
+    width: 20px;
+    height: 20px;
+}
+
+.stepbystep-response-bubble {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 18px;
+    padding: 12px 20px;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    position: relative;
+}
+
+.stepbystep-response-bubble::before {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 16px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid #764ba2;
+}
+
+/* Step actions */
+.stepbystep-step-actions {
+    text-align: center;
+    margin-top: 0;
+}
+
+.stepbystep-button.stepbystep-continue {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.stepbystep-button.stepbystep-continue:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
+}
+
+/* Completion section */
+.stepbystep-completion {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    text-align: center;
+    margin-top: 30px;
+    border: 2px solid #4caf50;
+    animation: slideInUp 0.5s ease;
+}
+
+.stepbystep-completion-icon {
+    margin-bottom: 20px;
+}
+
+.stepbystep-completion-title {
+    color: #2e7d32;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.stepbystep-completion-text {
+    color: #666;
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.stepbystep-button.stepbystep-return {
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    color: white;
+    text-decoration: none;
+    padding: 14px 32px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+}
+
+.stepbystep-button.stepbystep-return:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+/* Animations */
+.stepbystep-step.fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .stepbystep-container {
+        padding: 15px;
+        max-width: 100%;
+    }
+    
+    .stepbystep-step {
+        padding: 20px;
+    }
+    
+    .stepbystep-title {
+        font-size: 24px;
+    }
+    
+    .stepbystep-vocabulary .stepbystep-term {
+        font-size: 20px;
+    }
+    
+    .stepbystep-text-content {
+        font-size: 16px;
+    }
+    
+    .stepbystep-response-section {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+    }
+}
+
+/* Hide completion initially */
+.stepbystep-completion {
+    display: none;
+}
+
+.stepbystep-completion.show {
+    display: block;
+}

@@ -1,0 +1,305 @@
+/* This file is part of Moodle - http://moodle.org/
+ *
+ * Moodle is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moodle is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Mobile optimization styles for Step by Step module
+ * Include this file after the main styles.css for better mobile experience
+ *
+ * @package    mod_stepbystep
+ * @copyright  2024 Your Name <your.email@example.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/* Mobile-first responsive design */
+@media (max-width: 768px) {
+    .stepbystep-container {
+        padding: 10px;
+        max-width: 100%;
+    }
+    
+    .stepbystep-title {
+        font-size: 22px;
+        margin-bottom: 20px;
+    }
+    
+    .stepbystep-intro {
+        padding: 15px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+    
+    .stepbystep-chat-container {
+        padding: 15px;
+        gap: 16px;
+    }
+    
+    /* Optimize chat messages for mobile */
+    .stepbystep-chat-message {
+        gap: 12px;
+    }
+    
+    .stepbystep-step-content-left,
+    .stepbystep-response-right {
+        max-width: 90%;
+    }
+    
+    /* Smaller avatars on mobile */
+    .stepbystep-step-avatar,
+    .stepbystep-response-avatar {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+    }
+    
+    .stepbystep-step-avatar svg,
+    .stepbystep-response-avatar svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    /* Optimize bubbles for mobile */
+    .stepbystep-step-bubble,
+    .stepbystep-response-bubble {
+        padding: 12px 16px;
+        border-radius: 16px;
+    }
+    
+    /* Adjust speech bubbles for smaller screens */
+    .stepbystep-step-bubble::before {
+        left: -6px;
+        top: 12px;
+        border-top: 6px solid transparent;
+        border-bottom: 6px solid transparent;
+        border-right: 6px solid #f8f9fa;
+    }
+    
+    .stepbystep-response-bubble::before {
+        right: -6px;
+        top: 12px;
+        border-top: 6px solid transparent;
+        border-bottom: 6px solid transparent;
+        border-left: 6px solid #764ba2;
+    }
+    
+    /* Optimize step number display */
+    .stepbystep-step-number {
+        font-size: 11px;
+        padding: 3px 8px;
+    }
+    
+    /* Optimize vocabulary content */
+    .stepbystep-vocabulary .stepbystep-term {
+        font-size: 18px;
+        margin-bottom: 12px;
+    }
+    
+    .stepbystep-definition,
+    .stepbystep-example {
+        margin-bottom: 12px;
+    }
+    
+    .stepbystep-definition-text,
+    .stepbystep-example-text {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+    
+    /* Optimize text content */
+    .stepbystep-text-content {
+        font-size: 14px;
+        padding: 12px;
+        line-height: 1.5;
+    }
+    
+    /* Optimize audio button */
+    .stepbystep-audio-button {
+        padding: 8px 16px;
+        font-size: 13px;
+        border-radius: 18px;
+    }
+    
+    .stepbystep-audio-button svg {
+        width: 14px;
+        height: 14px;
+    }
+    
+    /* Optimize response button */
+    .stepbystep-button.stepbystep-continue {
+        padding: 6px 16px;
+        font-size: 13px;
+        border-radius: 18px;
+    }
+    
+    /* Optimize completion section */
+    .stepbystep-completion {
+        padding: 30px 20px;
+        margin-top: 20px;
+    }
+    
+    .stepbystep-completion-title {
+        font-size: 24px;
+    }
+    
+    .stepbystep-completion-text {
+        font-size: 16px;
+    }
+    
+    .stepbystep-button.stepbystep-return {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    .stepbystep-container {
+        padding: 8px;
+    }
+    
+    .stepbystep-chat-container {
+        padding: 12px;
+        gap: 12px;
+    }
+    
+    .stepbystep-step-content-left,
+    .stepbystep-response-right {
+        max-width: 95%;
+    }
+    
+    .stepbystep-step-avatar,
+    .stepbystep-response-avatar {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .stepbystep-step-avatar svg,
+    .stepbystep-response-avatar svg {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .stepbystep-step-bubble,
+    .stepbystep-response-bubble {
+        padding: 10px 14px;
+    }
+    
+    .stepbystep-vocabulary .stepbystep-term {
+        font-size: 16px;
+    }
+    
+    .stepbystep-text-content {
+        font-size: 13px;
+        padding: 10px;
+    }
+    
+    .stepbystep-audio-button {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .stepbystep-button.stepbystep-continue {
+        padding: 5px 14px;
+        font-size: 12px;
+    }
+}
+
+/* Landscape orientation optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+    .stepbystep-container {
+        padding: 15px;
+    }
+    
+    .stepbystep-chat-container {
+        gap: 20px;
+    }
+    
+    .stepbystep-step-content-left,
+    .stepbystep-response-right {
+        max-width: 85%;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .stepbystep-step-avatar,
+    .stepbystep-response-avatar {
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .stepbystep-step-bubble,
+    .stepbystep-response-bubble {
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .stepbystep-audio-button,
+    .stepbystep-button.stepbystep-continue {
+        min-height: 44px; /* Apple's recommended minimum touch target size */
+        min-width: 44px;
+    }
+    
+    .stepbystep-audio-button:hover,
+    .stepbystep-button.stepbystep-continue:hover {
+        transform: none; /* Disable hover effects on touch devices */
+    }
+}
+
+/* Accessibility improvements for mobile */
+@media (max-width: 768px) {
+    .stepbystep-step-avatar,
+    .stepbystep-response-avatar {
+        /* Ensure sufficient contrast on small screens */
+        filter: contrast(1.2);
+    }
+    
+    .stepbystep-step-bubble,
+    .stepbystep-response-bubble {
+        /* Improve readability on small screens */
+        line-height: 1.4;
+    }
+    
+    /* Larger touch targets for better accessibility */
+    .stepbystep-audio-button,
+    .stepbystep-button.stepbystep-continue {
+        min-height: 40px;
+    }
+}
+
+/* Print styles for mobile */
+@media print {
+    .stepbystep-container {
+        background: white;
+        box-shadow: none;
+    }
+    
+    .stepbystep-chat-container {
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+    
+    .stepbystep-step-avatar,
+    .stepbystep-response-avatar {
+        background: #f0f0f0 !important;
+        color: #333 !important;
+    }
+    
+    .stepbystep-response-bubble {
+        background: #f0f0f0 !important;
+        color: #333 !important;
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "browser": true,
+    "devel": true,
+    "esversion": 5,
+    "globals": {
+        "define": true,
+        "require": true,
+        "jQuery": true,
+        "$": true,
+        "M": true
+    },
+    "indent": 4,
+    "maxlen": 120,
+    "trailing": true,
+    "unused": true
+}

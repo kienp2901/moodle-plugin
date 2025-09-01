@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/stepbystep/db" VERSION="20240830" COMMENT="XMLDB file for Step by Step module"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="stepbystep" COMMENT="Main table for Step by Step activities">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+      </INDEXES>
+    </TABLE>
+    
+    <TABLE NAME="stepbystep_content" COMMENT="Content steps for Step by Step activities">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="stepbystep_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="type" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" DEFAULT="text"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="main_title" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="sub_heading" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="content_paragraphs" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="term" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="definition" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="example" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="audio_file" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="response_text" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="stepbystep_id" TYPE="foreign" FIELDS="stepbystep_id" REFTABLE="stepbystep" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="stepbystep_id" UNIQUE="false" FIELDS="stepbystep_id"/>
+        <INDEX NAME="sortorder" UNIQUE="false" FIELDS="sortorder"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>
