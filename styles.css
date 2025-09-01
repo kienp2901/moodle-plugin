@@ -481,3 +481,343 @@
 .stepbystep-completion.show {
     display: block;
 }
+
+/* Step by Step module styles */
+
+/* Form field visibility styles - Simple hide/show */
+.stepbystep-text-field,
+.stepbystep-vocabulary-field,
+.stepbystep-common-field {
+    /* Default styling - no custom colors or effects */
+}
+
+/* Field styling */
+.stepbystep-text-field,
+.stepbystep-vocabulary-field,
+.stepbystep-common-field {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.stepbystep-text-field:focus,
+.stepbystep-vocabulary-field:focus,
+.stepbystep-common-field:focus {
+    border-color: #0078d7;
+    box-shadow: 0 0 0 3px rgba(0, 120, 215, 0.25);
+    outline: none;
+}
+
+/* Textarea specific styling */
+textarea.stepbystep-text-field,
+textarea.stepbystep-vocabulary-field {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Label styling */
+.fitem label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Required field indicator */
+/* .fitem label[for*="type"],
+.fitem label[for*="response_text"] {
+    color: #dc3545;
+} */
+
+.fitem label[for*="type"] {
+    color: #dc3545;
+}
+
+/* .fitem label[for*="type"]::after,
+.fitem label[for*="response_text"]::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+} */
+
+.fitem label[for*="type"]::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Vocabulary fields group */
+.stepbystep-vocabulary-fields {
+    border-left-color: #28a745;
+    background-color: #f8fff8;
+}
+
+/* Text fields group */
+.stepbystep-text-fields {
+    border-left-color: #ffc107;
+    background-color: #fffef8;
+}
+
+/* Common fields group */
+.stepbystep-common-fields {
+    border-left-color: #6c757d;
+    background-color: #f8f9fa;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .stepbystep-step-container {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .stepbystep-field-group {
+        padding: 8px;
+    }
+}
+
+/* Animation for field visibility */
+.stepbystep-field-hidden {
+    display: none !important;
+}
+
+.stepbystep-field-visible {
+    display: block !important;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Form validation styling */
+.stepbystep-error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.stepbystep-success {
+    border-color: #28a745 !important;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+/* Help text styling */
+.stepbystep-help-text {
+    font-size: 0.875em;
+    color: #6c757d;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* Step counter styling */
+.stepbystep-step-counter {
+    display: inline-block;
+    background-color: #0078d7;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    line-height: 24px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+/* Add/Remove step button styling */
+.stepbystep-add-step,
+.stepbystep-remove-step {
+    margin: 5px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.stepbystep-add-step {
+    background-color: #28a745;
+    color: white;
+}
+
+.stepbystep-add-step:hover {
+    background-color: #218838;
+}
+
+.stepbystep-remove-step {
+    background-color: #dc3545;
+    color: white;
+}
+
+.stepbystep-remove-step:hover {
+    background-color: #c82333;
+}
+
+/* Field label styling */
+.stepbystep-field-label {
+    font-weight: bold;
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+/* Required field indicator */
+.stepbystep-required::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Field description styling */
+.stepbystep-field-description {
+    font-size: 0.8em;
+    color: #6c757d;
+    margin-top: 2px;
+    font-style: italic;
+}
+
+/* Step type indicator */
+.stepbystep-type-indicator {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-left: 10px;
+}
+
+.stepbystep-type-vocabulary {
+    background-color: #28a745;
+    color: white;
+}
+
+.stepbystep-type-text {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* Content area styling */
+.stepbystep-content-area {
+    min-height: 100px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: white;
+}
+
+/* File upload area styling */
+.stepbystep-file-upload {
+    border: 2px dashed #ced4da;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f9fa;
+    transition: border-color 0.3s ease;
+}
+
+.stepbystep-file-upload:hover {
+    border-color: #0078d7;
+    background-color: #e7f3ff;
+}
+
+/* Progress indicator */
+.stepbystep-progress {
+    width: 100%;
+    height: 4px;
+    background-color: #e9ecef;
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.stepbystep-progress-bar {
+    height: 100%;
+    background-color: #0078d7;
+    transition: width 0.3s ease;
+}
+
+/* Tooltip styling */
+.stepbystep-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.stepbystep-tooltip .stepbystep-tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.stepbystep-tooltip:hover .stepbystep-tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Accessibility improvements */
+.stepbystep-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Focus styles for better accessibility */
+.stepbystep-text-field:focus,
+.stepbystep-vocabulary-field:focus,
+.stepbystep-common-field:focus {
+    outline: 2px solid #0078d7;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .stepbystep-step-container {
+        border: 2px solid #000;
+        background-color: #fff;
+    }
+    
+    .stepbystep-field-group {
+        border-left: 4px solid #000;
+        background-color: #fff;
+    }
+}
+
+/* Print styles */
+@media print {
+    .stepbystep-add-step,
+    .stepbystep-remove-step {
+        display: none;
+    }
+    
+    .stepbystep-step-container {
+        border: 1px solid #000;
+        background-color: #fff;
+        page-break-inside: avoid;
+    }
+}

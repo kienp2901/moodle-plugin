@@ -188,7 +188,7 @@ function stepbystep_update_instance($stepbystep, $mform = null) {
                 'response_text' => isset($stepbystep->response_text[$i]) ? $stepbystep->response_text[$i] : ''
             );
 
-            // var_dump($content);
+            // var_dump($content, stepbystep_validate_step_content($content));
             // die();
 
             // Check if step has valid content based on type
@@ -469,13 +469,24 @@ function stepbystep_validate_step_content($content) {
     switch ($content['type']) {
         case 'text':
             // For text type, check if main_title or content_paragraphs is provided
-            if (!empty(trim($content['main_title'])) || !empty(trim($content['content_paragraphs']))) {
+            $mainTitle = is_string($content['main_title']) ? trim($content['main_title']) : '';
+            $contentParagraphs = '';
+            
+            // Handle content_paragraphs properly - extract text from editor array
+            if (is_array($content['content_paragraphs']) && isset($content['content_paragraphs']['text'])) {
+                $contentParagraphs = trim($content['content_paragraphs']['text']);
+            } else if (is_string($content['content_paragraphs'])) {
+                $contentParagraphs = trim($content['content_paragraphs']);
+            }
+            
+            if (!empty($mainTitle) || !empty($contentParagraphs)) {
                 return true;
             }
             return false;
             
         case 'vocabulary':
-            return !empty(trim($content['term']));
+            $term = is_string($content['term']) ? trim($content['term']) : '';
+            return !empty($term);
             
         default:
             return false;

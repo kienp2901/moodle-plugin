@@ -1,5 +1,65 @@
 # Changelog
 
+## [v0.1.8] - 2024-12-19
+
+### Added
+- **Dynamic Form Field Visibility**: Implemented conditional field display based on step type
+  - Vocabulary type: Shows term, definition, example, audio_file fields
+  - Text type: Shows main_title, sub_heading, content_paragraphs fields
+  - Response text field remains visible for both types
+  - Smooth CSS animations for field transitions
+  - Enhanced user experience with visual feedback
+- **Remove Step Button**: Added remove step functionality for each content step
+  - Each step now has a "Remove step" button
+  - Button is automatically hidden when only 1 step remains
+  - Ensures at least 1 step is always present
+  - Dynamic visibility based on step count
+
+### Improved
+- **Form User Experience**: Complete redesign with modern UI/UX
+  - **Single Step Initialization**: Form now starts with only 1 step for new activities
+  - **Step Groups**: Each step wrapped in styled containers with hover effects
+  - **Visual Indicators**: Color-coded step types (green for vocabulary, yellow for text)
+  - **Step Counters**: Numbered badges showing step order
+  - **Responsive Design**: Mobile-friendly layout with touch-optimized controls
+  - **Accessibility**: Improved focus states and screen reader support
+
+### Fixed
+- **CSS Loading Error**: Fixed "Cannot require a CSS file after <head> has been printed" error
+  - Moved CSS inclusion to the correct location in `definition()` method
+  - Ensured CSS loads before page rendering begins
+  - Proper Moodle CSS loading sequence maintained
+- **Form Field Visibility**: Fixed hide/show functionality not working
+  - Simplified JavaScript to use jQuery show/hide instead of CSS classes
+  - Removed complex CSS animations and styling
+  - Ensured proper DOM targeting for field visibility
+- **Multi-Step Independence**: Fixed step type changes affecting other steps
+  - Each step now has independent field visibility control
+  - Step type changes only affect fields of the specific step
+  - Proper step index targeting for field selection
+- **Form Data Loading**: Fixed data duplication and incorrect field filling when editing
+  - Fixed data preprocessing to set fields based on step type
+  - Prevented cross-type data contamination
+  - Ensured proper field initialization for mixed step types
+- **Validation Error**: Fixed trim() error when step has no data
+  - Added proper type checking before using trim() function
+  - Handled array values from form fields correctly
+  - Prevented PHP errors when updating with empty steps
+
+### Technical Changes
+- Updated `mod_form.php` with proper initialization logic
+- Enhanced `form.js` with simplified hide/show functionality
+- Removed custom CSS styling to use Moodle defaults
+- Improved JavaScript event handling and error handling
+- Added special handling for filemanager elements
+- Updated build process with Grunt for minified JavaScript
+
+### Documentation
+- Created `FORM_FIELD_VISIBILITY_README.md` with comprehensive implementation guide
+- Updated technical documentation with new UI/UX features
+- Added troubleshooting section for common issues
+- Included responsive design and accessibility guidelines
+
 ## [v0.1.1] - 2024-08-30
 
 ### Fixed

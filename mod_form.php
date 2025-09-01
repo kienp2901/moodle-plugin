@@ -81,38 +81,44 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         
         // Main title field (for text type)
         $repeatarray[] = $mform->createElement('text', 'main_title', get_string('main_title', 'mod_stepbystep'), 
-            array('size' => 80));
+            array('size' => 80, 'class' => 'stepbystep-text-field'));
         
         // Sub heading field (for text type)
         $repeatarray[] = $mform->createElement('text', 'sub_heading', get_string('sub_heading', 'mod_stepbystep'), 
-            array('size' => 80));
+            array('size' => 80, 'class' => 'stepbystep-text-field'));
         
         // Content paragraphs field (for text type) - JSON format for multiple paragraphs
         $repeatarray[] = $mform->createElement('editor', 'content_paragraphs', get_string('content_paragraphs', 'mod_stepbystep'), 
-            array('rows' => 8, 'cols' => 80), $this->get_editor_options());
+            array('rows' => 8, 'cols' => 80, 'class' => 'stepbystep-text-field'), $this->get_editor_options());
         
         // Term field (for vocabulary type)
         $repeatarray[] = $mform->createElement('text', 'term', get_string('term', 'mod_stepbystep'), 
-            array('size' => 50));
+            array('size' => 50, 'class' => 'stepbystep-vocabulary-field'));
         
         // Definition field (for vocabulary type)
         $repeatarray[] = $mform->createElement('textarea', 'definition', get_string('definition', 'mod_stepbystep'), 
-            array('rows' => 3, 'cols' => 50));
+            array('rows' => 3, 'cols' => 50, 'class' => 'stepbystep-vocabulary-field'));
         
         // Example field (for vocabulary type)
         $repeatarray[] = $mform->createElement('textarea', 'example', get_string('example', 'mod_stepbystep'), 
-            array('rows' => 3, 'cols' => 50));
+            array('rows' => 3, 'cols' => 50, 'class' => 'stepbystep-vocabulary-field'));
         
         // Audio file field (for vocabulary type)
-        $repeatarray[] = $mform->createElement('filemanager', 'audio_file', get_string('audiofile', 'mod_stepbystep'), 
-            null, $this->get_filemanager_options());
+        // $repeatarray[] = $mform->createElement('filemanager', 'audio_file', get_string('audiofile', 'mod_stepbystep'), 
+        //     null, $this->get_filemanager_options());
         
-        // Response text field
+        // Response text field (common for both types)
         $repeatarray[] = $mform->createElement('text', 'response_text', get_string('responsetext', 'mod_stepbystep'), 
-            array('size' => 50));
+            array('size' => 50, 'class' => 'stepbystep-common-field'));
         
-        // Determine the initial number of steps
+        // Add remove step button (will be handled by JavaScript)
+        $repeatarray[] = $mform->createElement('button', 'remove_step', get_string('removestep', 'mod_stepbystep'), 
+            array('class' => 'stepbystep-remove-btn'));
+        
+        // Always start with 1 step for new activities
         $initialSteps = 1;
+        
+        // Only load existing steps if editing
         if ($this->current && isset($this->current->id)) {
             global $DB;
             $steps = $DB->get_records('stepbystep_content', 
@@ -157,25 +163,40 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                 // Set the default number of steps to match existing steps
                 $this->_form->setDefault('steps', $stepCount);
                 error_log('Step by Step Form: Set default steps to ' . $stepCount);
-                
                 // Set defaults for all fields
-                foreach ($steps as $index => $step) {
-                    $this->_form->setDefault('type[' . $index . ']', $step->type);
-                    $this->_form->setDefault('term[' . $index . ']', $step->term);
-                    $this->_form->setDefault('definition[' . $index . ']', $step->definition);
-                    $this->_form->setDefault('example[' . $index . ']', $step->example);
-                    $this->_form->setDefault('response_text[' . $index . ']', $step->response_text);
+                $formIndex = 0; // Form index starts from 0
+                foreach ($steps as $dbIndex => $step) {
+                    error_log('Step by Step Form: Processing step DB index ' . $dbIndex . ' -> Form index ' . $formIndex . ' with type ' . $step->type);
                     
-                    // For text type steps, set defaults for new fields
+                    $this->_form->setDefault('type[' . $formIndex . ']', $step->type);
+                    $this->_form->setDefault('response_text[' . $formIndex . ']', $step->response_text);
+                    
+                    // Set fields based on step type
                     if ($step->type === 'text') {
-                        $this->_form->setDefault('main_title[' . $index . ']', $step->main_title);
-                        $this->_form->setDefault('sub_heading[' . $index . ']', $step->sub_heading);
-                        $this->_form->setDefault('content_paragraphs[' . $index . '][text]', $step->content_paragraphs);
-                        $this->_form->setDefault('content_paragraphs[' . $index . '][format]', FORMAT_HTML);
+                        $this->_form->setDefault('main_title[' . $formIndex . ']', $step->main_title);
+                        $this->_form->setDefault('sub_heading[' . $formIndex . ']', $step->sub_heading);
+                        $this->_form->setDefault('content_paragraphs[' . $formIndex . '][text]', $step->content_paragraphs);
+                        $this->_form->setDefault('content_paragraphs[' . $formIndex . '][format]', FORMAT_HTML);
+                        // Set empty values for vocabulary fields to avoid conflicts
+                        $this->_form->setDefault('term[' . $formIndex . ']', '');
+                        $this->_form->setDefault('definition[' . $formIndex . ']', '');
+                        $this->_form->setDefault('example[' . $formIndex . ']', '');
+                        $this->_form->setDefault('audio_file[' . $formIndex . ']', '');
+                    } else if ($step->type === 'vocabulary') {
+                        $this->_form->setDefault('term[' . $formIndex . ']', $step->term);
+                        $this->_form->setDefault('definition[' . $formIndex . ']', $step->definition);
+                        $this->_form->setDefault('example[' . $formIndex . ']', $step->example);
+                        $this->_form->setDefault('audio_file[' . $formIndex . ']', $step->audio_file);
+                        // Set empty values for text fields to avoid conflicts
+                        $this->_form->setDefault('main_title[' . $formIndex . ']', '');
+                        $this->_form->setDefault('sub_heading[' . $formIndex . ']', '');
+                        $this->_form->setDefault('content_paragraphs[' . $formIndex . '][text]', '');
+                        $this->_form->setDefault('content_paragraphs[' . $formIndex . '][format]', FORMAT_HTML);
                     }
                     
-                    error_log('Step by Step Form: Set defaults for step ' . $index);
-                }
+                                    error_log('Step by Step Form: Set defaults for step ' . $formIndex . ' with type ' . $step->type);
+                $formIndex++;
+            }
                 
                 error_log('Step by Step Form: Successfully set all field defaults');
             } else {
@@ -246,17 +267,36 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                 $index = 0;
                 foreach ($steps as $step) {
                     $defaultvalues['type'][$index] = $step->type;
-                    $defaultvalues['main_title'][$index] = $step->main_title;
-                    $defaultvalues['sub_heading'][$index] = $step->sub_heading;
-                    $defaultvalues['content_paragraphs'][$index] = array(
-                        'text' => $step->content_paragraphs,
-                        'format' => FORMAT_HTML
-                    );
-                    $defaultvalues['term'][$index] = $step->term;
-                    $defaultvalues['definition'][$index] = $step->definition;
-                    $defaultvalues['example'][$index] = $step->example;
-                    $defaultvalues['audio_file'][$index] = $step->audio_file;
                     $defaultvalues['response_text'][$index] = $step->response_text;
+                    
+                    // Set fields based on step type
+                    if ($step->type === 'text') {
+                        $defaultvalues['main_title'][$index] = $step->main_title;
+                        $defaultvalues['sub_heading'][$index] = $step->sub_heading;
+                        $defaultvalues['content_paragraphs'][$index] = array(
+                            'text' => $step->content_paragraphs,
+                            'format' => FORMAT_HTML
+                        );
+                        // Set empty values for vocabulary fields to avoid conflicts
+                        $defaultvalues['term'][$index] = '';
+                        $defaultvalues['definition'][$index] = '';
+                        $defaultvalues['example'][$index] = '';
+                        $defaultvalues['audio_file'][$index] = '';
+                    } else if ($step->type === 'vocabulary') {
+                        $defaultvalues['term'][$index] = $step->term;
+                        $defaultvalues['definition'][$index] = $step->definition;
+                        $defaultvalues['example'][$index] = $step->example;
+                        $defaultvalues['audio_file'][$index] = $step->audio_file;
+                        // Set empty values for text fields to avoid conflicts
+                        $defaultvalues['main_title'][$index] = '';
+                        $defaultvalues['sub_heading'][$index] = '';
+                        $defaultvalues['content_paragraphs'][$index] = array(
+                            'text' => '',
+                            'format' => FORMAT_HTML
+                        );
+                    }
+                    
+                    error_log('Step by Step Form: Set defaults for step ' . $index . ' with type ' . $step->type);
                     $index++;
                 }
                 
