@@ -101,3 +101,4 @@ $string['completionview_desc'] = 'Student must view all steps to complete this a
 $string['error_no_content'] = 'You must provide at least one content step.';
 $string['error_invalid_type'] = 'Invalid step type selected.';
 $string['error_missing_fields'] = 'Required fields are missing for this step type.';
+$string['apivocabularyerror'] = 'API error when processing vocabulary: {$a}';

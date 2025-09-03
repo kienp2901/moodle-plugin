@@ -27,6 +27,39 @@ defined('MOODLE_INTERNAL') || die();
 // No need to import these classes - they are global Moodle classes
 
 /**
+ * Send vocabulary data to API
+ *
+ * @param string $term The vocabulary term
+ * @param string $definition The definition of the term
+ * @param string $example The example usage
+ * @param string $apiurl The API endpoint URL
+ * @return array API response with status and storage_path
+ * @throws moodle_exception
+ */
+function stepbystep_send_vocabulary_to_api($term, $definition, $example, $apiurl) {
+    $curl = new curl();
+    
+    $postdata = array(
+        'term' => $term,
+        'definition' => $definition,
+        'example' => $example
+    );
+    
+    $response = $curl->post($apiurl, $postdata);
+    
+    $result = json_decode($response);
+    
+    if (!isset($result->status) || !$result->status) {
+        throw new moodle_exception('apivocabularyerror', 'mod_stepbystep', '', $result->message ?? 'Unknown error');
+    }
+    
+    return [
+        'status' => $result->status,
+        'storage_path' => $result->storage_path ?? ''
+    ];
+}
+
+/**
  * List of features supported in Step by Step module
  * @param string $feature FEATURE_xx constant for requested feature
  * @return mixed True if module supports feature, null if not
@@ -81,7 +114,8 @@ function stepbystep_supports($feature) {
  * @return int The id of the newly inserted stepbystep record
  */
 function stepbystep_add_instance($stepbystep, $mform = null) {
-    global $DB;
+    global $DB, $CFG;
+    require_once($CFG->dirroot . '/mod/stepbystep/config/config.php');
 
     $stepbystep->timecreated = time();
     $stepbystep->timemodified = time();
@@ -131,8 +165,26 @@ function stepbystep_add_instance($stepbystep, $mform = null) {
                 $step->example = $content['example'];
                 $step->audio_file = $content['audio_file'];
                 $step->response_text = $content['response_text'];
+                $step->storage_path = ''; // Initialize storage_path
                 $step->sortorder = $i;
                 $step->timecreated = time();
+                
+                // Call API for vocabulary type steps
+                if ($content['type'] === 'vocabulary' && !empty($content['term'])) {
+                    try {
+                        $api_response = stepbystep_send_vocabulary_to_api(
+                            $content['term'],
+                            $content['definition'],
+                            $content['example'],
+                            $apiVocabularyUrl
+                        );
+                        $step->storage_path = $api_response['storage_path'];
+                    } catch (Exception $e) {
+                        // Log error but don't fail the entire operation
+                        error_log('Stepbystep API error: ' . $e->getMessage());
+                        // Continue without storage_path
+                    }
+                }
                 
                 $result = $DB->insert_record('stepbystep_content', $step);
             }
@@ -156,7 +208,8 @@ function stepbystep_add_instance($stepbystep, $mform = null) {
  * @return boolean Success/Failure
  */
 function stepbystep_update_instance($stepbystep, $mform = null) {
-    global $DB;
+    global $DB, $CFG;
+    require_once($CFG->dirroot . '/mod/stepbystep/config/config.php');
 
     $stepbystep->timemodified = time();
     $stepbystep->id = $stepbystep->instance;
@@ -211,8 +264,26 @@ function stepbystep_update_instance($stepbystep, $mform = null) {
                 $step->example = $content['example'];
                 $step->audio_file = $content['audio_file'];
                 $step->response_text = $content['response_text'];
+                $step->storage_path = ''; // Initialize storage_path
                 $step->sortorder = $i;
                 $step->timecreated = time();
+                
+                // Call API for vocabulary type steps
+                if ($content['type'] === 'vocabulary' && !empty($content['term'])) {
+                    try {
+                        $api_response = stepbystep_send_vocabulary_to_api(
+                            $content['term'],
+                            $content['definition'],
+                            $content['example'],
+                            $apiVocabularyUrl
+                        );
+                        $step->storage_path = $api_response['storage_path'];
+                    } catch (Exception $e) {
+                        // Log error but don't fail the entire operation
+                        error_log('Stepbystep API error: ' . $e->getMessage());
+                        // Continue without storage_path
+                    }
+                }
                 
                 $result = $DB->insert_record('stepbystep_content', $step);
             }
