@@ -107,9 +107,17 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         // $repeatarray[] = $mform->createElement('filemanager', 'audio_file', get_string('audiofile', 'mod_stepbystep'), 
         //     null, $this->get_filemanager_options());
         
-        // Response text field (common for both types)
-        $repeatarray[] = $mform->createElement('text', 'response_text', get_string('responsetext', 'mod_stepbystep'), 
-            array('size' => 50, 'class' => 'stepbystep-common-field'));
+        // Response text field (common for both types) - changed to select dropdown
+        $responseElement = $mform->createElement('select', 'response_text', get_string('responsetext', 'mod_stepbystep'), 
+            array(
+                'tiep_theo' => 'Ti&#7871;p theo',
+                'hop_ly' => 'H&#7907;p l&#253;!',
+                'duoc_roi' => '&#272;&#432;&#7907;c r&#7891;i!',
+                'dong_y' => '&#272;&#7891;ng &#253;!',
+                'hieu_roi' => 'Hi&#7875;u r&#7891;i!'
+            ), array('class' => 'stepbystep-common-field'));
+        $responseElement->setSelected('tiep_theo');
+        $repeatarray[] = $responseElement;
         
         // Add remove step button (will be handled by JavaScript)
         $repeatarray[] = $mform->createElement('button', 'remove_step', get_string('removestep', 'mod_stepbystep'), 
@@ -169,7 +177,25 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                     error_log('Step by Step Form: Processing step DB index ' . $dbIndex . ' -> Form index ' . $formIndex . ' with type ' . $step->type);
                     
                     $this->_form->setDefault('type[' . $formIndex . ']', $step->type);
-                    $this->_form->setDefault('response_text[' . $formIndex . ']', $step->response_text);
+                    // Set response_text default, use existing value or default to 'tiep_theo'
+                    $responseValue = !empty($step->response_text) ? $step->response_text : 'tiep_theo';
+                    // Map old values to new keys if needed
+                    $responseMapping = array(
+                        'Tiếp theo' => 'tiep_theo',
+                        'Hợp lý!' => 'hop_ly',
+                        'Được rồi!' => 'duoc_roi',
+                        'Đồng ý!' => 'dong_y',
+                        'Hiểu rồi!' => 'hieu_roi',
+                        'Ti&#7871;p theo' => 'tiep_theo',
+                        'H&#7907;p l&#253;!' => 'hop_ly',
+                        '&#272;&#432;&#7907;c r&#7891;i!' => 'duoc_roi',
+                        '&#272;&#7891;ng &#253;!' => 'dong_y',
+                        'Hi&#7875;u r&#7891;i!' => 'hieu_roi'
+                    );
+                    if (isset($responseMapping[$responseValue])) {
+                        $responseValue = $responseMapping[$responseValue];
+                    }
+                    $this->_form->setDefault('response_text[' . $formIndex . ']', $responseValue);
                     
                     // Set fields based on step type
                     if ($step->type === 'text') {
@@ -267,7 +293,25 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                 $index = 0;
                 foreach ($steps as $step) {
                     $defaultvalues['type'][$index] = $step->type;
-                    $defaultvalues['response_text'][$index] = $step->response_text;
+                    // Set response_text default, use existing value or default to 'tiep_theo'
+                    $responseValue = !empty($step->response_text) ? $step->response_text : 'tiep_theo';
+                    // Map old values to new keys if needed
+                    $responseMapping = array(
+                        'Tiếp theo' => 'tiep_theo',
+                        'Hợp lý!' => 'hop_ly',
+                        'Được rồi!' => 'duoc_roi',
+                        'Đồng ý!' => 'dong_y',
+                        'Hiểu rồi!' => 'hieu_roi',
+                        'Ti&#7871;p theo' => 'tiep_theo',
+                        'H&#7907;p l&#253;!' => 'hop_ly',
+                        '&#272;&#432;&#7907;c r&#7891;i!' => 'duoc_roi',
+                        '&#272;&#7891;ng &#253;!' => 'dong_y',
+                        'Hi&#7875;u r&#7891;i!' => 'hieu_roi'
+                    );
+                    if (isset($responseMapping[$responseValue])) {
+                        $responseValue = $responseMapping[$responseValue];
+                    }
+                    $defaultvalues['response_text'][$index] = $responseValue;
                     
                     // Set fields based on step type
                     if ($step->type === 'text') {
@@ -364,5 +408,23 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         }
         
         return $errors;
+    }
+
+    /**
+     * Convert response text keys to display text
+     *
+     * @param string $key
+     * @return string
+     */
+    private function get_response_display_text($key) {
+        $responseMapping = array(
+            'tiep_theo' => 'Ti&#7871;p theo',
+            'hop_ly' => 'H&#7907;p l&#253;!',
+            'duoc_roi' => '&#272;&#432;&#7907;c r&#7891;i!',
+            'dong_y' => '&#272;&#7891;ng &#253;!',
+            'hieu_roi' => 'Hi&#7875;u r&#7891;i!'
+        );
+        
+        return isset($responseMapping[$key]) ? $responseMapping[$key] : $key;
     }
 }

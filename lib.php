@@ -142,7 +142,7 @@ function stepbystep_add_instance($stepbystep, $mform = null) {
                 'definition' => isset($stepbystep->definition[$i]) ? $stepbystep->definition[$i] : '',
                 'example' => isset($stepbystep->example[$i]) ? $stepbystep->example[$i] : '',
                 'audio_file' => isset($stepbystep->audio_file[$i]) ? $stepbystep->audio_file[$i] : '',
-                'response_text' => isset($stepbystep->response_text[$i]) ? $stepbystep->response_text[$i] : ''
+                'response_text' => isset($stepbystep->response_text[$i]) ? stepbystep_convert_response_key_to_text($stepbystep->response_text[$i]) : 'Ti&#7871;p theo'
             );
             
             // Check if step has valid content based on type
@@ -238,7 +238,7 @@ function stepbystep_update_instance($stepbystep, $mform = null) {
                 'definition' => isset($stepbystep->definition[$i]) ? $stepbystep->definition[$i] : '',
                 'example' => isset($stepbystep->example[$i]) ? $stepbystep->example[$i] : '',
                 'audio_file' => isset($stepbystep->audio_file[$i]) ? $stepbystep->audio_file[$i] : '',
-                'response_text' => isset($stepbystep->response_text[$i]) ? $stepbystep->response_text[$i] : ''
+                'response_text' => isset($stepbystep->response_text[$i]) ? stepbystep_convert_response_key_to_text($stepbystep->response_text[$i]) : 'Ti&#7871;p theo'
             );
 
             // var_dump($content, stepbystep_validate_step_content($content));
@@ -637,4 +637,22 @@ function stepbystep_get_completion_state($course, $cm, $userid, $type) {
     
     // Default: no completion tracking
     return $type;
+}
+
+/**
+ * Convert response text key to display text
+ *
+ * @param string $key The response key
+ * @return string The display text
+ */
+function stepbystep_convert_response_key_to_text($key) {
+    $responseMapping = array(
+        'tiep_theo' => 'Ti&#7871;p theo',
+        'hop_ly' => 'H&#7907;p l&#253;!',
+        'duoc_roi' => '&#272;&#432;&#7907;c r&#7891;i!',
+        'dong_y' => '&#272;&#7891;ng &#253;!',
+        'hieu_roi' => 'Hi&#7875;u r&#7891;i!'
+    );
+    
+    return isset($responseMapping[$key]) ? $responseMapping[$key] : $key;
 }
