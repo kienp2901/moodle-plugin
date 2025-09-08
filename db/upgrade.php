@@ -34,7 +34,7 @@ function xmldb_stepbystep_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024083000, 'stepbystep');
     }
 
-    if ($oldversion < 2024121913) {
+    if ($oldversion < 2024121916) {
         // Add storage_path field to stepbystep_content table
         $table = new xmldb_table('stepbystep_content');
         $field = new xmldb_field('storage_path', XMLDB_TYPE_CHAR, '500', null, null, null, null, 'response_text');
@@ -43,7 +43,7 @@ function xmldb_stepbystep_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
         
-        upgrade_mod_savepoint(true, 2024121913, 'stepbystep');
+        upgrade_mod_savepoint(true, 2024121916, 'stepbystep');
     }
 
     // if ($oldversion < 2024083030) {
