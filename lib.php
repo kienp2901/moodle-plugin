@@ -170,21 +170,21 @@ function stepbystep_add_instance($stepbystep, $mform = null) {
                 $step->timecreated = time();
                 
                 // Call API for vocabulary type steps
-                if ($content['type'] === 'vocabulary' && !empty($content['term'])) {
-                    try {
-                        $api_response = stepbystep_send_vocabulary_to_api(
-                            $content['term'],
-                            $content['definition'],
-                            $content['example'],
-                            $apiVocabularyUrl
-                        );
-                        $step->storage_path = $api_response['storage_path'];
-                    } catch (Exception $e) {
-                        // Log error but don't fail the entire operation
-                        error_log('Stepbystep API error: ' . $e->getMessage());
-                        // Continue without storage_path
-                    }
-                }
+                // if ($content['type'] === 'vocabulary' && !empty($content['term'])) {
+                //     try {
+                //         $api_response = stepbystep_send_vocabulary_to_api(
+                //             $content['term'],
+                //             $content['definition'],
+                //             $content['example'],
+                //             $apiVocabularyUrl
+                //         );
+                //         $step->storage_path = $api_response['storage_path'];
+                //     } catch (Exception $e) {
+                //         // Log error but don't fail the entire operation
+                //         error_log('Stepbystep API error: ' . $e->getMessage());
+                //         // Continue without storage_path
+                //     }
+                // }
                 
                 $result = $DB->insert_record('stepbystep_content', $step);
             }
@@ -269,21 +269,21 @@ function stepbystep_update_instance($stepbystep, $mform = null) {
                 $step->timecreated = time();
                 
                 // Call API for vocabulary type steps
-                if ($content['type'] === 'vocabulary' && !empty($content['term'])) {
-                    try {
-                        $api_response = stepbystep_send_vocabulary_to_api(
-                            $content['term'],
-                            $content['definition'],
-                            $content['example'],
-                            $apiVocabularyUrl
-                        );
-                        $step->storage_path = $api_response['storage_path'];
-                    } catch (Exception $e) {
-                        // Log error but don't fail the entire operation
-                        error_log('Stepbystep API error: ' . $e->getMessage());
-                        // Continue without storage_path
-                    }
-                }
+                // if ($content['type'] === 'vocabulary' && !empty($content['term'])) {
+                //     try {
+                //         $api_response = stepbystep_send_vocabulary_to_api(
+                //             $content['term'],
+                //             $content['definition'],
+                //             $content['example'],
+                //             $apiVocabularyUrl
+                //         );
+                //         $step->storage_path = $api_response['storage_path'];
+                //     } catch (Exception $e) {
+                //         // Log error but don't fail the entire operation
+                //         error_log('Stepbystep API error: ' . $e->getMessage());
+                //         // Continue without storage_path
+                //     }
+                // }
                 
                 $result = $DB->insert_record('stepbystep_content', $step);
             }

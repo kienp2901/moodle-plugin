@@ -59,7 +59,7 @@ define(['jquery'], function($) {
                 var stepIndex = getStepIndex($button);
                 console.log('Remove step clicked for index:', stepIndex);
                 
-                // Find all field containers for this specific step (same logic as handleStepTypeChange)
+                // Find all field containers for this specific step
                 var stepFieldContainers = [
                     $('input[name="main_title[' + stepIndex + ']"]').closest('.fitem'),
                     $('input[name="sub_heading[' + stepIndex + ']"]').closest('.fitem'),
@@ -68,7 +68,7 @@ define(['jquery'], function($) {
                     $('textarea[name="definition[' + stepIndex + ']"]').closest('.fitem'),
                     $('textarea[name="example[' + stepIndex + ']"]').closest('.fitem'),
                     $('input[name="audio_file[' + stepIndex + ']"]').closest('.fitem'),
-                    $('input[name="response_text[' + stepIndex + ']"]').closest('.fitem'),
+                    $('select[name="response_text[' + stepIndex + ']"]').closest('.fitem'),
                     $('select[name="type[' + stepIndex + ']"]').closest('.fitem'),
                     $('button[name="remove_step[' + stepIndex + ']"]').closest('.fitem')
                 ];
@@ -114,7 +114,7 @@ define(['jquery'], function($) {
             definition: $('textarea[name="definition[' + stepIndex + ']"]').closest('.fitem'),
             example: $('textarea[name="example[' + stepIndex + ']"]').closest('.fitem'),
             audioFile: $('input[name="audio_file[' + stepIndex + ']"]').closest('.fitem'),
-            responseText: $('input[name="response_text[' + stepIndex + ']"]').closest('.fitem')
+            responseText: $('select[name="response_text[' + stepIndex + ']"]').closest('.fitem')
         };
         
         // Hide all content fields for this step first
@@ -217,30 +217,39 @@ define(['jquery'], function($) {
     function reindexSteps() {
         console.log('Reindexing steps...');
         
-        // Get all step containers
-        var $stepContainers = $('select[name^="type["]').closest('.fitem').parent();
+        // Get all remaining type selects and reindex them
+        var $typeSelects = $('select[name^="type["]');
+        console.log('Found', $typeSelects.length, 'type selects to reindex');
         
-        $stepContainers.each(function(index) {
-            var $container = $(this);
+        $typeSelects.each(function(newIndex) {
+            var $select = $(this);
+            var oldName = $select.attr('name');
+            var newName = 'type[' + newIndex + ']';
             
-            // Update all field names in this container
-            $container.find('select[name^="type["]').attr('name', 'type[' + index + ']');
-            $container.find('input[name^="main_title["]').attr('name', 'main_title[' + index + ']');
-            $container.find('input[name^="sub_heading["]').attr('name', 'sub_heading[' + index + ']');
-            $container.find('textarea[name^="content_paragraphs["]').attr('name', 'content_paragraphs[' + index + '][text]');
-            $container.find('input[name^="term["]').attr('name', 'term[' + index + ']');
-            $container.find('textarea[name^="definition["]').attr('name', 'definition[' + index + ']');
-            $container.find('textarea[name^="example["]').attr('name', 'example[' + index + ']');
-            $container.find('input[name^="audio_file["]').attr('name', 'audio_file[' + index + ']');
-            $container.find('input[name^="response_text["]').attr('name', 'response_text[' + index + ']');
-            $container.find('button[name^="remove_step["]').attr('name', 'remove_step[' + index + ']');
+            console.log('Reindexing', oldName, 'to', newName);
             
-            // Update data-step-index attribute
-            $container.find('.fitem').attr('data-step-index', index);
+            // Update all field names for this step
+            var stepIndex = getStepIndex($select);
+            
+            // Update all fields with the same step index
+            $('input[name="main_title[' + stepIndex + ']"]').attr('name', 'main_title[' + newIndex + ']');
+            $('input[name="sub_heading[' + stepIndex + ']"]').attr('name', 'sub_heading[' + newIndex + ']');
+            $('textarea[name="content_paragraphs[' + stepIndex + '][text]"]').attr('name', 'content_paragraphs[' + newIndex + '][text]');
+            $('input[name="term[' + stepIndex + ']"]').attr('name', 'term[' + newIndex + ']');
+            $('textarea[name="definition[' + stepIndex + ']"]').attr('name', 'definition[' + newIndex + ']');
+            $('textarea[name="example[' + stepIndex + ']"]').attr('name', 'example[' + newIndex + ']');
+            $('input[name="audio_file[' + stepIndex + ']"]').attr('name', 'audio_file[' + newIndex + ']');
+            $('select[name="response_text[' + stepIndex + ']"]').attr('name', 'response_text[' + newIndex + ']');
+            $('button[name="remove_step[' + stepIndex + ']"]').attr('name', 'remove_step[' + newIndex + ']');
+            
+            // Update the type select last
+            $select.attr('name', newName);
+            
+            console.log('Updated step', stepIndex, 'to new index', newIndex);
         });
         
         // Update the steps count field
-        var newStepCount = $stepContainers.length;
+        var newStepCount = $typeSelects.length;
         $('input[name="steps"]').val(newStepCount);
         
         console.log('Reindexed steps, new count:', newStepCount);
