@@ -517,6 +517,41 @@ textarea.stepbystep-vocabulary-field {
     min-height: 80px;
 }
 
+/* TinyMCE editor specific styling - Fixed size for content_paragraphs editor */
+.tox.tox-tinymce {
+    min-height: 400px !important;
+    height: 400px !important;
+    max-height: 400px !important;
+}
+
+.tox .tox-edit-area {
+    min-height: 400px !important;
+    height: 400px !important;
+    max-height: 400px !important;
+}
+
+.tox .tox-edit-area__iframe {
+    min-height: 400px !important;
+    height: 400px !important;
+    max-height: 400px !important;
+}
+
+/* Specific styling for content_paragraphs editor textarea */
+textarea[name*="content_paragraphs"] {
+    min-height: 400px !important;
+    height: 400px !important;
+    max-height: 400px !important;
+    resize: none !important;
+    overflow-y: auto !important;
+}
+
+/* Force TinyMCE container to have fixed height */
+div[data-fieldtype="editor"] .tox.tox-tinymce {
+    min-height: 400px !important;
+    height: 400px !important;
+    max-height: 400px !important;
+}
+
 /* Label styling */
 .fitem label {
     font-weight: 600;

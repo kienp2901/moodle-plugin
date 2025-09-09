@@ -89,7 +89,7 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         
         // Content paragraphs field (for text type) - JSON format for multiple paragraphs
         $repeatarray[] = $mform->createElement('editor', 'content_paragraphs', get_string('content_paragraphs', 'mod_stepbystep'), 
-            array('rows' => 8, 'cols' => 80, 'class' => 'stepbystep-text-field'), $this->get_editor_options());
+            array('rows' => 24, 'cols' => 80, 'class' => 'stepbystep-text-field'), $this->get_editor_options());
         
         // Term field (for vocabulary type)
         $repeatarray[] = $mform->createElement('text', 'term', get_string('term', 'mod_stepbystep'), 

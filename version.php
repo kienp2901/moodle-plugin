@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component   = 'mod_stepbystep';
-$plugin->version     = 2024121916;
+$plugin->version     = 2024121922;
 $plugin->requires    = 2023100900; // Moodle 4.3
 $plugin->maturity    = MATURITY_ALPHA;
 $plugin->supported = [403, 404];

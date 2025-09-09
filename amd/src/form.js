@@ -38,6 +38,9 @@ define(['jquery'], function($) {
             // Initialize existing steps
             initializeExistingSteps();
             
+            // Fix editor sizes on page load
+            fixEditorSizes();
+            
             // Handle step type changes for existing and new steps
             $(document).on('change', 'select[name^="type["]', function() {
                 handleStepTypeChange($(this));
@@ -49,6 +52,7 @@ define(['jquery'], function($) {
                 setTimeout(function() {
                     initializeNewSteps();
                     updateRemoveButtons();
+                    fixEditorSizes();
                 }, 200);
             });
             
@@ -270,6 +274,55 @@ define(['jquery'], function($) {
             $('button[name^="remove_step["]').show();
             console.log('Show remove buttons - multiple steps');
         }
+    }
+
+    /**
+     * Fix editor sizes to ensure consistent height
+     */
+    function fixEditorSizes() {
+        console.log('Fixing editor sizes...');
+        
+        // Force all content_paragraphs editors to have fixed height
+        $('textarea[name*="content_paragraphs"]').each(function() {
+            var $textarea = $(this);
+            $textarea.css({
+                'min-height': '400px',
+                'height': '400px',
+                'max-height': '400px',
+                'resize': 'none',
+                'overflow-y': 'auto'
+            });
+        });
+        
+        // Force all TinyMCE editors to have fixed height
+        $('.tox.tox-tinymce').each(function() {
+            var $container = $(this);
+            $container.css({
+                'min-height': '400px',
+                'height': '400px',
+                'max-height': '400px'
+            });
+        });
+        
+        $('.tox .tox-edit-area').each(function() {
+            var $editArea = $(this);
+            $editArea.css({
+                'min-height': '400px',
+                'height': '400px',
+                'max-height': '400px'
+            });
+        });
+        
+        $('.tox .tox-edit-area__iframe').each(function() {
+            var $iframe = $(this);
+            $iframe.css({
+                'min-height': '400px',
+                'height': '400px',
+                'max-height': '400px'
+            });
+        });
+        
+        console.log('Editor sizes fixed');
     }
 
     return {
