@@ -220,11 +220,19 @@ function stepbystep_update_instance($stepbystep, $mform = null) {
 
 
     // Update content steps
-    if (isset($stepbystep->type) && is_array($stepbystep->type)) {
-        // Delete existing content
-        $DB->delete_records('stepbystep_content', array('stepbystep_id' => $stepbystep->id));
-        
+    // Always delete existing content first
+    $DB->delete_records('stepbystep_content', array('stepbystep_id' => $stepbystep->id));
+    error_log('Step by Step Update: Deleted existing content');
+    
+    // Check if we have steps to save
+    if (isset($stepbystep->type) && is_array($stepbystep->type) && count($stepbystep->type) > 0) {
         $stepcount = count($stepbystep->type);
+        
+        // Debug: Log step data
+        error_log('Step by Step Update: stepcount = ' . $stepcount);
+        error_log('Step by Step Update: type array = ' . print_r($stepbystep->type, true));
+        error_log('Step by Step Update: main_title array = ' . print_r($stepbystep->main_title, true));
+        error_log('Step by Step Update: content_paragraphs array = ' . print_r($stepbystep->content_paragraphs, true));
         
         // Insert new content
         for ($i = 0; $i < $stepcount; $i++) {
@@ -288,6 +296,9 @@ function stepbystep_update_instance($stepbystep, $mform = null) {
                 $result = $DB->insert_record('stepbystep_content', $step);
             }
         }
+        error_log('Step by Step Update: Successfully inserted ' . $stepcount . ' steps');
+    } else {
+        error_log('Step by Step Update: No steps to save, all content deleted');
     }
 
     $DB->set_field('course_modules', 'instance', $stepbystep->id, array('id'=>$cmid));

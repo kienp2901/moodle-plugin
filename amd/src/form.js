@@ -41,6 +41,12 @@ define(['jquery'], function($) {
             // Fix editor sizes on page load
             fixEditorSizes();
             
+            // Add content change listeners for dynamic height adjustment
+            addContentChangeListeners();
+            
+            // Check if we need to scroll after adding step
+            checkAndScrollAfterAdd();
+            
             // Handle step type changes for existing and new steps
             $(document).on('change', 'select[name^="type["]', function() {
                 handleStepTypeChange($(this));
@@ -48,12 +54,8 @@ define(['jquery'], function($) {
             
             // Handle add step button (Moodle's built-in repeatable elements)
             $(document).on('click', 'input[name="steps_add"]', function() {
-                // Wait a bit for Moodle to add the new element
-                setTimeout(function() {
-                    initializeNewSteps();
-                    updateRemoveButtons();
-                    fixEditorSizes();
-                }, 200);
+                // Store scroll flag in sessionStorage for after page reload
+                sessionStorage.setItem('stepbystep_scroll_after_add', 'true');
             });
             
             // Handle custom remove step button
@@ -175,9 +177,216 @@ define(['jquery'], function($) {
             var $select = $(this);
             if (!$select.data('initialized')) {
                 $select.data('initialized', true);
+                
+                // Clear content of new step to avoid showing old content
+                clearNewStepContent($select);
+                
                 handleStepTypeChange($select);
             }
         });
+    }
+    
+    /**
+     * Clear content of newly added step
+     */
+    function clearNewStepContent($select) {
+        var stepIndex = getStepIndex($select);
+        
+        // Clear all text fields for this step
+        $('input[name="main_title[' + stepIndex + ']"]').val('');
+        $('input[name="sub_heading[' + stepIndex + ']"]').val('');
+        $('input[name="term[' + stepIndex + ']"]').val('');
+        $('textarea[name="definition[' + stepIndex + ']"]').val('');
+        $('textarea[name="example[' + stepIndex + ']"]').val('');
+        $('input[name="audio_file[' + stepIndex + ']"]').val('');
+        
+        // Clear content paragraphs editor - more thorough approach
+        var $contentEditor = $('textarea[name="content_paragraphs[' + stepIndex + '][text]"]');
+        if ($contentEditor.length > 0) {
+            // Clear the textarea value
+            $contentEditor.val('');
+            
+            // Clear any hidden input that might contain the content
+            $('input[name="content_paragraphs[' + stepIndex + '][text]"]').val('');
+            
+            // If it's a TinyMCE editor, clear the editor content
+            if (typeof tinymce !== 'undefined') {
+                var editorId = $contentEditor.attr('id');
+                if (editorId) {
+                    // Wait a bit for TinyMCE to initialize if needed
+                    setTimeout(function() {
+                        var editor = tinymce.get(editorId);
+                        if (editor) {
+                            editor.setContent('');
+                            editor.save(); // Save the empty content
+                        }
+                    }, 100);
+                }
+            }
+            
+            // Also clear any iframe content that might be used by the editor
+            $contentEditor.siblings('iframe').each(function() {
+                try {
+                    var iframeDoc = this.contentDocument || this.contentWindow.document;
+                    if (iframeDoc && iframeDoc.body) {
+                        iframeDoc.body.innerHTML = '';
+                    }
+                } catch (e) {
+                    // Cross-origin or other iframe access issues - ignore
+                }
+            });
+        }
+        
+        // Set default response text
+        $('select[name="response_text[' + stepIndex + ']"]').val('tiep_theo');
+        
+        console.log('Cleared content for new step at index:', stepIndex);
+    }
+    
+    /**
+     * Check if we need to scroll after adding step (after page reload)
+     */
+    function checkAndScrollAfterAdd() {
+        if (sessionStorage.getItem('stepbystep_scroll_after_add') === 'true') {
+            // Clear the flag
+            sessionStorage.removeItem('stepbystep_scroll_after_add');
+            
+            // Check if last step was deleted (special case)
+            var lastStepWasDeleted = sessionStorage.getItem('stepbystep_last_step_deleted') === 'true';
+            if (lastStepWasDeleted) {
+                sessionStorage.removeItem('stepbystep_last_step_deleted');
+                console.log('Last step was deleted, using extra aggressive clearing');
+            }
+            
+            // Wait a bit for page to fully load, then scroll and clear only the last step
+            setTimeout(function() {
+                // Clear only the last step (which should be the newly added one)
+                clearLastStepContent();
+                
+                // Extra aggressive clearing if last step was deleted
+                if (lastStepWasDeleted) {
+                    clearLastStepContentAggressively();
+                }
+                
+                // Scroll to bottom
+                $('html, body').animate({
+                    scrollTop: $(document).height()
+                }, 500);
+                console.log('Scrolled to bottom after adding step');
+            }, 1000);
+        }
+    }
+    
+    /**
+     * Clear content of the last step (newly added step)
+     */
+    function clearLastStepContent() {
+        // Find the last step (highest index)
+        var maxIndex = -1;
+        $('select[name^="type["]').each(function() {
+            var stepIndex = getStepIndex($(this));
+            if (stepIndex > maxIndex) {
+                maxIndex = stepIndex;
+            }
+        });
+        
+        // Clear only the last step
+        if (maxIndex >= 0) {
+            var $lastSelect = $('select[name="type[' + maxIndex + ']"]');
+            if ($lastSelect.length > 0) {
+                // Force clear all content for the last step
+                clearNewStepContent($lastSelect);
+                
+                // Additional check: if content_paragraphs still has content, force clear it
+                setTimeout(function() {
+                    var $contentEditor = $('textarea[name="content_paragraphs[' + maxIndex + '][text]"]');
+                    if ($contentEditor.length > 0 && $contentEditor.val().trim() !== '') {
+                        $contentEditor.val('');
+                        
+                        // Force clear TinyMCE if it exists
+                        if (typeof tinymce !== 'undefined') {
+                            var editorId = $contentEditor.attr('id');
+                            if (editorId) {
+                                var editor = tinymce.get(editorId);
+                                if (editor) {
+                                    editor.setContent('');
+                                    editor.save();
+                                }
+                            }
+                        }
+                        
+                        console.log('Force cleared content_paragraphs for step at index:', maxIndex);
+                    }
+                }, 200);
+                
+                console.log('Cleared content for newly added step at index:', maxIndex);
+            }
+        }
+    }
+    
+
+    /**
+     * Extra aggressive clearing for last step when it was deleted before adding new one
+     */
+    function clearLastStepContentAggressively() {
+        var maxIndex = -1;
+        $('select[name^="type["]').each(function() {
+            var stepIndex = getStepIndex($(this));
+            if (stepIndex > maxIndex) {
+                maxIndex = stepIndex;
+            }
+        });
+        
+        if (maxIndex >= 0) {
+            console.log('Extra aggressive clearing for step at index:', maxIndex);
+            
+            // Clear multiple times with different methods
+            for (var i = 0; i < 5; i++) {
+                setTimeout(function() {
+                    // Clear all fields
+                    $('input[name="main_title[' + maxIndex + ']"]').val('');
+                    $('input[name="sub_heading[' + maxIndex + ']"]').val('');
+                    $('input[name="term[' + maxIndex + ']"]').val('');
+                    $('textarea[name="definition[' + maxIndex + ']"]').val('');
+                    $('textarea[name="example[' + maxIndex + ']"]').val('');
+                    $('input[name="audio_file[' + maxIndex + ']"]').val('');
+                    $('select[name="response_text[' + maxIndex + ']"]').val('tiep_theo');
+                    
+                    // Extra aggressive clearing for content_paragraphs
+                    var $contentEditor = $('textarea[name="content_paragraphs[' + maxIndex + '][text]"]');
+                    if ($contentEditor.length > 0) {
+                        $contentEditor.val('');
+                        $('input[name="content_paragraphs[' + maxIndex + '][text]"]').val('');
+                        
+                        // Clear TinyMCE aggressively
+                        if (typeof tinymce !== 'undefined') {
+                            var editorId = $contentEditor.attr('id');
+                            if (editorId) {
+                                var editor = tinymce.get(editorId);
+                                if (editor) {
+                                    editor.setContent('');
+                                    editor.save();
+                                    // Also try to clear the iframe content directly
+                                    try {
+                                        var iframe = editor.getContainer().querySelector('iframe');
+                                        if (iframe && iframe.contentDocument) {
+                                            iframe.contentDocument.body.innerHTML = '';
+                                        }
+                                    } catch (e) {
+                                        console.log('Could not clear iframe content:', e);
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Clear any hidden inputs
+                        $('input[name*="content_paragraphs[' + maxIndex + ']"]').val('');
+                    }
+                    
+                    console.log('Extra aggressive clearing iteration ' + i + ' for step ' + maxIndex);
+                }, i * 100);
+            }
+        }
     }
 
     /**
@@ -277,52 +486,133 @@ define(['jquery'], function($) {
     }
 
     /**
-     * Fix editor sizes to ensure consistent height
+     * Fix editor sizes to ensure flexible height with scroll capability
      */
     function fixEditorSizes() {
-        console.log('Fixing editor sizes...');
+        console.log('Fixing editor sizes with flexible height...');
         
-        // Force all content_paragraphs editors to have fixed height
+        // Set flexible height for all content_paragraphs editors
         $('textarea[name*="content_paragraphs"]').each(function() {
             var $textarea = $(this);
             $textarea.css({
-                'min-height': '400px',
-                'height': '400px',
-                'max-height': '400px',
-                'resize': 'none',
+                'min-height': '480px',
+                'height': 'auto',
+                'max-height': '600px',
+                'resize': 'vertical',
                 'overflow-y': 'auto'
             });
         });
         
-        // Force all TinyMCE editors to have fixed height
+        // Set flexible height for all TinyMCE editors
         $('.tox.tox-tinymce').each(function() {
             var $container = $(this);
             $container.css({
-                'min-height': '400px',
-                'height': '400px',
-                'max-height': '400px'
+                'min-height': '480px',
+                'height': 'auto',
+                'max-height': '600px'
             });
         });
         
         $('.tox .tox-edit-area').each(function() {
             var $editArea = $(this);
             $editArea.css({
-                'min-height': '400px',
-                'height': '400px',
-                'max-height': '400px'
+                'min-height': '480px',
+                'height': 'auto',
+                'max-height': '600px'
             });
         });
         
         $('.tox .tox-edit-area__iframe').each(function() {
             var $iframe = $(this);
             $iframe.css({
-                'min-height': '400px',
-                'height': '400px',
-                'max-height': '400px'
+                'min-height': '480px',
+                'height': 'auto',
+                'max-height': '600px',
+                'overflow-y': 'auto',
+                'overflow-x': 'hidden'
             });
         });
         
-        console.log('Editor sizes fixed');
+        // Auto-adjust height based on content after a short delay
+        setTimeout(function() {
+            $('.tox.tox-tinymce').each(function() {
+                var $editor = $(this);
+                try {
+                    var iframe = $editor.find('.tox-edit-area__iframe')[0];
+                    if (iframe && iframe.contentDocument) {
+                        var bodyHeight = iframe.contentDocument.body.scrollHeight;
+                        var toolbarHeight = $editor.find('.tox-toolbar').outerHeight() || 0;
+                        var totalHeight = Math.max(480, Math.min(bodyHeight + toolbarHeight + 20, 600));
+                        
+                        $editor.css('height', totalHeight + 'px');
+                        $editor.find('.tox-edit-area').css('height', (totalHeight - toolbarHeight) + 'px');
+                        $editor.find('.tox-edit-area__iframe').css('height', (totalHeight - toolbarHeight) + 'px');
+                    }
+                } catch (e) {
+                    console.log('Could not auto-adjust editor height:', e);
+                }
+            });
+        }, 600);
+        
+        console.log('Editor sizes fixed with flexible height');
+    }
+
+    /**
+     * Add content change listeners for dynamic height adjustment
+     */
+    function addContentChangeListeners() {
+        // Listen for TinyMCE content changes
+        if (typeof tinymce !== 'undefined') {
+            tinymce.on('AddEditor', function(e) {
+                var editor = e.editor;
+                if (editor.id && editor.id.indexOf('content_paragraphs') !== -1) {
+                    editor.on('input keyup paste', function() {
+                        setTimeout(function() {
+                            adjustEditorHeight(editor);
+                        }, 100);
+                    });
+                }
+            });
+        }
+        
+        // Also listen for direct textarea changes
+        $('textarea[name*="content_paragraphs"]').on('input keyup paste', function() {
+            var $textarea = $(this);
+            setTimeout(function() {
+                adjustTextareaHeight($textarea);
+            }, 100);
+        });
+    }
+
+    /**
+     * Adjust TinyMCE editor height based on content
+     */
+    function adjustEditorHeight(editor) {
+        try {
+            var $editor = $('#' + editor.id).closest('.tox.tox-tinymce');
+            var iframe = $editor.find('.tox-edit-area__iframe')[0];
+            
+            if (iframe && iframe.contentDocument) {
+                var bodyHeight = iframe.contentDocument.body.scrollHeight;
+                var toolbarHeight = $editor.find('.tox-toolbar').outerHeight() || 0;
+                var totalHeight = Math.max(480, Math.min(bodyHeight + toolbarHeight + 20, 600));
+                
+                $editor.css('height', totalHeight + 'px');
+                $editor.find('.tox-edit-area').css('height', (totalHeight - toolbarHeight) + 'px');
+                $editor.find('.tox-edit-area__iframe').css('height', (totalHeight - toolbarHeight) + 'px');
+            }
+        } catch (e) {
+            console.log('Could not adjust editor height:', e);
+        }
+    }
+
+    /**
+     * Adjust textarea height based on content
+     */
+    function adjustTextareaHeight($textarea) {
+        var contentHeight = $textarea[0].scrollHeight;
+        var newHeight = Math.max(480, Math.min(contentHeight, 600));
+        $textarea.css('height', newHeight + 'px');
     }
 
     return {

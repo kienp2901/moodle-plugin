@@ -89,7 +89,7 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         
         // Content paragraphs field (for text type) - JSON format for multiple paragraphs
         $repeatarray[] = $mform->createElement('editor', 'content_paragraphs', get_string('content_paragraphs', 'mod_stepbystep'), 
-            array('rows' => 24, 'cols' => 80, 'class' => 'stepbystep-text-field'), $this->get_editor_options());
+            array('rows' => 40, 'cols' => 80, 'class' => 'stepbystep-text-field'), $this->get_editor_options());
         
         // Term field (for vocabulary type)
         $repeatarray[] = $mform->createElement('text', 'term', get_string('term', 'mod_stepbystep'), 
@@ -138,11 +138,92 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         }
         
         // Repeat elements with correct initial count
-        $this->repeat_elements($repeatarray, $initialSteps, array(), 'steps', 'steps_add', 1, 
+        // Use empty array for defaults to prevent copying data when adding new steps
+        $defaults = array();
+        
+        // Get current step count from form to handle newly added steps
+        $currentStepCount = optional_param('steps', $initialSteps, PARAM_INT);
+        if ($currentStepCount < $initialSteps) {
+            $currentStepCount = $initialSteps;
+        }
+        
+        error_log('Step by Step Form: definition - Initial steps: ' . $initialSteps . ', Current steps: ' . $currentStepCount);
+        
+        $this->repeat_elements($repeatarray, $currentStepCount, $defaults, 'steps', 'steps_add', 1, 
             get_string('addstep', 'mod_stepbystep'), true);
             
         // Set the default number of steps
-        $mform->setDefault('steps', $initialSteps);
+        $mform->setDefault('steps', $currentStepCount);
+        
+        // Store the current step count for later use
+        $this->currentStepCount = $currentStepCount;
+        
+        // Force clear data for newly added steps immediately after repeat_elements
+        if ($currentStepCount > $initialSteps) {
+            error_log('Step by Step Form: Force clearing newly added steps after repeat_elements');
+            
+            // Special handling for when last step was deleted and new step added
+            $lastStepWasDeleted = false;
+            if ($this->current && isset($this->current->id)) {
+                global $DB;
+                $currentSteps = $DB->get_records('stepbystep_content', 
+                    array('stepbystep_id' => $this->current->id), 'sortorder ASC');
+                if ($currentSteps) {
+                    $currentDbSteps = count($currentSteps);
+                    if ($currentDbSteps < $initialSteps) {
+                        $lastStepWasDeleted = true;
+                        error_log('Step by Step Form: Last step was deleted, current DB steps: ' . $currentDbSteps . ', initial steps: ' . $initialSteps);
+                    }
+                }
+            }
+            
+            for ($i = $initialSteps; $i < $currentStepCount; $i++) {
+                // Force clear all fields for newly added steps
+                $mform->setDefault('main_title[' . $i . ']', '');
+                $mform->setDefault('sub_heading[' . $i . ']', '');
+                $mform->setDefault('content_paragraphs[' . $i . '][text]', '');
+                $mform->setDefault('content_paragraphs[' . $i . '][format]', FORMAT_HTML);
+                $mform->setDefault('term[' . $i . ']', '');
+                $mform->setDefault('definition[' . $i . ']', '');
+                $mform->setDefault('example[' . $i . ']', '');
+                $mform->setDefault('audio_file[' . $i . ']', '');
+                $mform->setDefault('response_text[' . $i . ']', 'tiep_theo');
+                $mform->setDefault('type[' . $i . ']', 'text');
+                
+                // Also clear any potential hidden fields
+                $mform->setDefault('main_title[' . $i . ']', null);
+                $mform->setDefault('sub_heading[' . $i . ']', null);
+                $mform->setDefault('content_paragraphs[' . $i . '][text]', null);
+                $mform->setDefault('term[' . $i . ']', null);
+                $mform->setDefault('definition[' . $i . ']', null);
+                $mform->setDefault('example[' . $i . ']', null);
+                $mform->setDefault('audio_file[' . $i . ']', null);
+                
+                // Force set empty values again
+                $mform->setDefault('main_title[' . $i . ']', '');
+                $mform->setDefault('sub_heading[' . $i . ']', '');
+                $mform->setDefault('content_paragraphs[' . $i . '][text]', '');
+                $mform->setDefault('content_paragraphs[' . $i . '][format]', FORMAT_HTML);
+                $mform->setDefault('term[' . $i . ']', '');
+                $mform->setDefault('definition[' . $i . ']', '');
+                $mform->setDefault('example[' . $i . ']', '');
+                $mform->setDefault('audio_file[' . $i . ']', '');
+                $mform->setDefault('response_text[' . $i . ']', 'tiep_theo');
+                $mform->setDefault('type[' . $i . ']', 'text');
+                
+                // Extra aggressive clearing if last step was deleted
+                if ($lastStepWasDeleted) {
+                    error_log('Step by Step Form: Extra aggressive clearing for step ' . $i . ' (last step was deleted)');
+                    for ($k = 0; $k < 5; $k++) {
+                        $mform->setDefault('content_paragraphs[' . $i . '][text]', '');
+                        $mform->setDefault('content_paragraphs[' . $i . '][text]', null);
+                        $mform->setDefault('content_paragraphs[' . $i . '][text]', '');
+                    }
+                }
+                
+                error_log('Step by Step Form: Force cleared newly added step ' . $i);
+            }
+        }
         
         // Add standard elements
         $this->standard_coursemodule_elements();
@@ -157,24 +238,44 @@ class mod_stepbystep_mod_form extends moodleform_mod {
     public function definition_after_data() {
         parent::definition_after_data();
         
-        // Get the number of existing steps to determine how many repeat elements to show
-        $stepCount = 1; // Default to 1
+        // Get the number of existing steps from DB
+        $existingStepsCount = 0;
+        $steps = array();
         
         if ($this->current && isset($this->current->id)) {
             global $DB;
             $steps = $DB->get_records('stepbystep_content', 
                 array('stepbystep_id' => $this->current->id), 'sortorder ASC');
             if ($steps) {
-                $stepCount = count($steps);
-                error_log('Step by Step Form: definition_after_data - Found ' . $stepCount . ' steps');
-                
-                // Set the default number of steps to match existing steps
-                $this->_form->setDefault('steps', $stepCount);
-                error_log('Step by Step Form: Set default steps to ' . $stepCount);
-                // Set defaults for all fields
+                $existingStepsCount = count($steps);
+                error_log('Step by Step Form: definition_after_data - Found ' . $existingStepsCount . ' existing steps');
+            }
+        }
+        
+        // Get current step count from form (including newly added steps)
+        $currentStepCount = optional_param('steps', $existingStepsCount, PARAM_INT);
+        if ($currentStepCount < $existingStepsCount) {
+            $currentStepCount = $existingStepsCount;
+        }
+        
+        // Use the stored current step count if available (from definition())
+        if (isset($this->currentStepCount) && $this->currentStepCount > $currentStepCount) {
+            $currentStepCount = $this->currentStepCount;
+            error_log('Step by Step Form: definition_after_data - Using stored current step count: ' . $currentStepCount);
+        }
+        
+        error_log('Step by Step Form: Current step count: ' . $currentStepCount . ', Existing steps: ' . $existingStepsCount);
+        
+        // Set the default number of steps
+        $this->_form->setDefault('steps', $currentStepCount);
+        
+        // Only set defaults for EXISTING steps (not newly added ones)
+        if (!empty($steps)) {
                 $formIndex = 0; // Form index starts from 0
                 foreach ($steps as $dbIndex => $step) {
-                    error_log('Step by Step Form: Processing step DB index ' . $dbIndex . ' -> Form index ' . $formIndex . ' with type ' . $step->type);
+                // Only process existing steps, not newly added ones
+                if ($formIndex < $existingStepsCount) {
+                    error_log('Step by Step Form: Processing EXISTING step DB index ' . $dbIndex . ' -> Form index ' . $formIndex . ' with type ' . $step->type);
                     
                     $this->_form->setDefault('type[' . $formIndex . ']', $step->type);
                     // Set response_text default, use existing value or default to 'tiep_theo'
@@ -220,21 +321,138 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                         $this->_form->setDefault('content_paragraphs[' . $formIndex . '][format]', FORMAT_HTML);
                     }
                     
-                                    error_log('Step by Step Form: Set defaults for step ' . $formIndex . ' with type ' . $step->type);
+                    error_log('Step by Step Form: Set defaults for EXISTING step ' . $formIndex . ' with type ' . $step->type);
+                }
                 $formIndex++;
             }
-                
-                error_log('Step by Step Form: Successfully set all field defaults');
-            } else {
-                error_log('Step by Step Form: definition_after_data - No steps found');
+            
+            error_log('Step by Step Form: Successfully set defaults for ' . $existingStepsCount . ' existing steps');
+        }
+        
+        // Explicitly clear data for newly added steps (steps beyond existing count)
+        $this->clearNewlyAddedStepsData($existingStepsCount);
+        
+        // Additional aggressive clearing for newly added steps
+        if ($currentStepCount > $existingStepsCount) {
+            error_log('Step by Step Form: definition_after_data - Additional aggressive clearing');
+            
+            // Check if last step was deleted (special case)
+            $lastStepWasDeleted = false;
+            if ($this->current && isset($this->current->id)) {
+                global $DB;
+                $currentSteps = $DB->get_records('stepbystep_content', 
+                    array('stepbystep_id' => $this->current->id), 'sortorder ASC');
+                if ($currentSteps) {
+                    $currentDbSteps = count($currentSteps);
+                    if ($currentDbSteps < $existingStepsCount) {
+                        $lastStepWasDeleted = true;
+                        error_log('Step by Step Form: definition_after_data - Last step was deleted, current DB steps: ' . $currentDbSteps . ', existing steps: ' . $existingStepsCount);
+                    }
+                }
             }
-        } else {
-            error_log('Step by Step Form: definition_after_data - No current instance or ID');
+            
+            for ($i = $existingStepsCount; $i < $currentStepCount; $i++) {
+                // Clear all fields multiple times to ensure they are empty
+                $clearIterations = $lastStepWasDeleted ? 5 : 3; // More iterations if last step was deleted
+                
+                for ($j = 0; $j < $clearIterations; $j++) {
+                    $this->_form->setDefault('main_title[' . $i . ']', '');
+                    $this->_form->setDefault('sub_heading[' . $i . ']', '');
+                    $this->_form->setDefault('content_paragraphs[' . $i . '][text]', '');
+                    $this->_form->setDefault('content_paragraphs[' . $i . '][format]', FORMAT_HTML);
+                    $this->_form->setDefault('term[' . $i . ']', '');
+                    $this->_form->setDefault('definition[' . $i . ']', '');
+                    $this->_form->setDefault('example[' . $i . ']', '');
+                    $this->_form->setDefault('audio_file[' . $i . ']', '');
+                    $this->_form->setDefault('response_text[' . $i . ']', 'tiep_theo');
+                    $this->_form->setDefault('type[' . $i . ']', 'text');
+                    
+                    // Also set to null and back to empty
+                    $this->_form->setDefault('main_title[' . $i . ']', null);
+                    $this->_form->setDefault('sub_heading[' . $i . ']', null);
+                    $this->_form->setDefault('content_paragraphs[' . $i . '][text]', null);
+                    $this->_form->setDefault('term[' . $i . ']', null);
+                    $this->_form->setDefault('definition[' . $i . ']', null);
+                    $this->_form->setDefault('example[' . $i . ']', null);
+                    $this->_form->setDefault('audio_file[' . $i . ']', null);
+                }
+                
+                // Extra special handling for content_paragraphs if last step was deleted
+                if ($lastStepWasDeleted) {
+                    error_log('Step by Step Form: definition_after_data - Extra special clearing for content_paragraphs[' . $i . ']');
+                    for ($k = 0; $k < 10; $k++) {
+                        $this->_form->setDefault('content_paragraphs[' . $i . '][text]', '');
+                        $this->_form->setDefault('content_paragraphs[' . $i . '][text]', null);
+                        $this->_form->setDefault('content_paragraphs[' . $i . '][text]', '');
+                        $this->_form->setDefault('content_paragraphs[' . $i . '][format]', FORMAT_HTML);
+                    }
+                }
+                
+                error_log('Step by Step Form: definition_after_data - Aggressively cleared step ' . $i . ($lastStepWasDeleted ? ' (last step was deleted)' : ''));
+            }
         }
         
         // Add JavaScript for form functionality
         global $PAGE;
         $PAGE->requires->js_call_amd('mod_stepbystep/form', 'init');
+    }
+    
+    /**
+     * Clear data for newly added steps to prevent copying old data
+     */
+    private function clearNewlyAddedStepsData($existingStepsCount) {
+        // Get current number of steps from form
+        $currentSteps = optional_param('steps', $existingStepsCount, PARAM_INT);
+        
+        // Use the stored current step count if available (from definition())
+        if (isset($this->currentStepCount) && $this->currentStepCount > $currentSteps) {
+            $currentSteps = $this->currentStepCount;
+            error_log('Step by Step Form: clearNewlyAddedStepsData - Using stored current step count: ' . $currentSteps);
+        }
+        
+        // If we have more steps than existing, clear the new ones
+        if ($currentSteps > $existingStepsCount) {
+            error_log('Step by Step Form: Clearing data for ' . ($currentSteps - $existingStepsCount) . ' newly added steps');
+            
+            for ($i = $existingStepsCount; $i < $currentSteps; $i++) {
+                // Clear all fields for newly added steps with explicit empty values
+                $this->_form->setDefault('main_title[' . $i . ']', '');
+                $this->_form->setDefault('sub_heading[' . $i . ']', '');
+                $this->_form->setDefault('content_paragraphs[' . $i . '][text]', '');
+                $this->_form->setDefault('content_paragraphs[' . $i . '][format]', FORMAT_HTML);
+                $this->_form->setDefault('term[' . $i . ']', '');
+                $this->_form->setDefault('definition[' . $i . ']', '');
+                $this->_form->setDefault('example[' . $i . ']', '');
+                $this->_form->setDefault('audio_file[' . $i . ']', '');
+                $this->_form->setDefault('response_text[' . $i . ']', 'tiep_theo');
+                $this->_form->setDefault('type[' . $i . ']', 'text'); // Default to text type
+                
+                // Also clear any potential hidden fields or cached values
+                $this->_form->setDefault('main_title[' . $i . ']', null);
+                $this->_form->setDefault('sub_heading[' . $i . ']', null);
+                $this->_form->setDefault('content_paragraphs[' . $i . '][text]', null);
+                $this->_form->setDefault('term[' . $i . ']', null);
+                $this->_form->setDefault('definition[' . $i . ']', null);
+                $this->_form->setDefault('example[' . $i . ']', null);
+                $this->_form->setDefault('audio_file[' . $i . ']', null);
+                
+                // Force set empty values again to override any cached values
+                $this->_form->setDefault('main_title[' . $i . ']', '');
+                $this->_form->setDefault('sub_heading[' . $i . ']', '');
+                $this->_form->setDefault('content_paragraphs[' . $i . '][text]', '');
+                $this->_form->setDefault('content_paragraphs[' . $i . '][format]', FORMAT_HTML);
+                $this->_form->setDefault('term[' . $i . ']', '');
+                $this->_form->setDefault('definition[' . $i . ']', '');
+                $this->_form->setDefault('example[' . $i . ']', '');
+                $this->_form->setDefault('audio_file[' . $i . ']', '');
+                $this->_form->setDefault('response_text[' . $i . ']', 'tiep_theo');
+                $this->_form->setDefault('type[' . $i . ']', 'text');
+                
+                error_log('Step by Step Form: Cleared data for newly added step ' . $i);
+            }
+            
+            error_log('Step by Step Form: Successfully cleared all newly added steps data');
+        }
     }
 
     /**
@@ -290,8 +508,22 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                 $defaultvalues['audio_file'] = array();
                 $defaultvalues['response_text'] = array();
                 
+                // Get current step count from form (including newly added steps)
+                $currentStepCount = optional_param('steps', count($steps), PARAM_INT);
+                $existingStepsCount = count($steps);
+                
+                // Use the stored current step count if available (from definition())
+                if (isset($this->currentStepCount) && $this->currentStepCount > $currentStepCount) {
+                    $currentStepCount = $this->currentStepCount;
+                    error_log('Step by Step Form: data_preprocessing - Using stored current step count: ' . $currentStepCount);
+                }
+                
+                error_log('Step by Step Form: data_preprocessing - Existing steps: ' . $existingStepsCount . ', Current steps: ' . $currentStepCount);
+                
                 $index = 0;
                 foreach ($steps as $step) {
+                    // Only set data for EXISTING steps, not newly added ones
+                    if ($index < $existingStepsCount) {
                     $defaultvalues['type'][$index] = $step->type;
                     // Set response_text default, use existing value or default to 'tiep_theo'
                     $responseValue = !empty($step->response_text) ? $step->response_text : 'tiep_theo';
@@ -340,26 +572,225 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                         );
                     }
                     
-                    error_log('Step by Step Form: Set defaults for step ' . $index . ' with type ' . $step->type);
+                        error_log('Step by Step Form: Set data for EXISTING step ' . $index . ' with type ' . $step->type);
+                    }
                     $index++;
                 }
                 
-                // Set the number of repeat elements to match existing steps
-                $defaultvalues['steps'] = count($steps);
+                // For newly added steps (beyond existing count), set empty values
+                for ($i = $existingStepsCount; $i < $currentStepCount; $i++) {
+                    $defaultvalues['type'][$i] = 'text';
+                    $defaultvalues['main_title'][$i] = '';
+                    $defaultvalues['sub_heading'][$i] = '';
+                    $defaultvalues['content_paragraphs'][$i] = array(
+                        'text' => '',
+                        'format' => FORMAT_HTML
+                    );
+                    $defaultvalues['term'][$i] = '';
+                    $defaultvalues['definition'][$i] = '';
+                    $defaultvalues['example'][$i] = '';
+                    $defaultvalues['audio_file'][$i] = '';
+                    $defaultvalues['response_text'][$i] = 'tiep_theo';
+                    
+                    // Extra special handling if this is after a last step deletion
+                    $lastStepWasDeleted = ($currentStepCount > $existingStepsCount) && ($existingStepsCount < count($steps));
+                    if ($lastStepWasDeleted) {
+                        error_log('Step by Step Form: data_preprocessing - Extra special clearing for step ' . $i . ' (last step was deleted)');
+                        // Set multiple times to ensure it's really empty
+                        for ($j = 0; $j < 3; $j++) {
+                            $defaultvalues['content_paragraphs'][$i] = array(
+                                'text' => '',
+                                'format' => FORMAT_HTML
+                            );
+                            $defaultvalues['main_title'][$i] = '';
+                            $defaultvalues['sub_heading'][$i] = '';
+                        }
+                    }
+                    
+                    error_log('Step by Step Form: Set EMPTY data for NEWLY ADDED step ' . $i . ($lastStepWasDeleted ? ' (last step was deleted)' : ''));
+                }
+                
+                // Set the number of repeat elements to match current step count
+                $defaultvalues['steps'] = $currentStepCount;
                 
                 // Debug: Log the defaultvalues
-                error_log('Step by Step Form: Set steps count to ' . count($steps));
+                error_log('Step by Step Form: Set steps count to ' . $currentStepCount);
                 error_log('Step by Step Form: Default values keys: ' . implode(', ', array_keys($defaultvalues)));
                 
                 // Also set the form defaults directly
-                $this->_form->setDefault('steps', count($steps));
-                error_log('Step by Step Form: Set form default steps to ' . count($steps));
+                $this->_form->setDefault('steps', $currentStepCount);
+                error_log('Step by Step Form: Set form default steps to ' . $currentStepCount);
             } else {
                 error_log('Step by Step Form: No steps found in database');
             }
         } else {
             error_log('Step by Step Form: No current instance or ID');
         }
+    }
+
+    /**
+     * Set form data and ensure newly added steps are empty
+     *
+     * @param array|object $data
+     * @return void
+     */
+    public function set_data($data) {
+        // Get existing steps count before setting data
+        $existingStepsCount = 0;
+        if ($this->current && isset($this->current->id)) {
+            global $DB;
+            $steps = $DB->get_records('stepbystep_content', 
+                array('stepbystep_id' => $this->current->id), 'sortorder ASC');
+            if ($steps) {
+                $existingStepsCount = count($steps);
+            }
+        }
+        
+        // Call parent set_data first
+        parent::set_data($data);
+        
+        // Force clear data for newly added steps after setting data
+        if (is_array($data) && isset($data['steps'])) {
+            $currentStepCount = $data['steps'];
+            
+            // Use the stored current step count if available (from definition())
+            if (isset($this->currentStepCount) && $this->currentStepCount > $currentStepCount) {
+                $currentStepCount = $this->currentStepCount;
+                error_log('Step by Step Form: set_data - Using stored current step count: ' . $currentStepCount);
+            }
+            
+            if ($currentStepCount > $existingStepsCount) {
+                error_log('Step by Step Form: set_data - Force clearing newly added steps data');
+                
+                for ($i = $existingStepsCount; $i < $currentStepCount; $i++) {
+                    // Clear all fields for newly added steps
+                    $this->_form->setDefault('main_title[' . $i . ']', '');
+                    $this->_form->setDefault('sub_heading[' . $i . ']', '');
+                    $this->_form->setDefault('content_paragraphs[' . $i . '][text]', '');
+                    $this->_form->setDefault('content_paragraphs[' . $i . '][format]', FORMAT_HTML);
+                    $this->_form->setDefault('term[' . $i . ']', '');
+                    $this->_form->setDefault('definition[' . $i . ']', '');
+                    $this->_form->setDefault('example[' . $i . ']', '');
+                    $this->_form->setDefault('audio_file[' . $i . ']', '');
+                    $this->_form->setDefault('response_text[' . $i . ']', 'tiep_theo');
+                    $this->_form->setDefault('type[' . $i . ']', 'text');
+                    
+                    error_log('Step by Step Form: set_data - Cleared data for newly added step ' . $i);
+                }
+            }
+        }
+    }
+
+    /**
+     * Get form data and ensure newly added steps are empty
+     *
+     * @return object|false
+     */
+    public function get_data() {
+        $data = parent::get_data();
+        
+        if ($data) {
+            // Get existing steps count
+            $existingStepsCount = 0;
+            if ($this->current && isset($this->current->id)) {
+                global $DB;
+                $steps = $DB->get_records('stepbystep_content', 
+                    array('stepbystep_id' => $this->current->id), 'sortorder ASC');
+                if ($steps) {
+                    $existingStepsCount = count($steps);
+                }
+            }
+            
+            // Get current step count from form data (this is the actual number of steps user wants)
+            $currentStepCount = isset($data->steps) ? $data->steps : $existingStepsCount;
+            
+            // Only use stored current step count if form data is not available (first load)
+            if (!isset($data->steps) && isset($this->currentStepCount) && $this->currentStepCount > $currentStepCount) {
+                $currentStepCount = $this->currentStepCount;
+                error_log('Step by Step Form: get_data - Using stored current step count (first load): ' . $currentStepCount);
+            }
+            
+            // Debug: Log step data before processing
+            error_log('Step by Step Form: get_data - currentStepCount = ' . $currentStepCount);
+            error_log('Step by Step Form: get_data - existingStepsCount = ' . $existingStepsCount);
+            error_log('Step by Step Form: get_data - data->steps = ' . (isset($data->steps) ? $data->steps : 'not set'));
+            error_log('Step by Step Form: get_data - type array count = ' . (isset($data->type) ? count($data->type) : 'not set'));
+            error_log('Step by Step Form: get_data - main_title array count = ' . (isset($data->main_title) ? count($data->main_title) : 'not set'));
+            
+            // Ensure all arrays have the correct length
+            if ($currentStepCount > 0) {
+                error_log('Step by Step Form: get_data - Ensuring arrays have correct length: ' . $currentStepCount);
+                
+                // Initialize arrays if they don't exist or are too short
+                if (!isset($data->type)) {
+                    $data->type = array();
+                }
+                if (!isset($data->main_title)) {
+                    $data->main_title = array();
+                }
+                if (!isset($data->sub_heading)) {
+                    $data->sub_heading = array();
+                }
+                if (!isset($data->content_paragraphs)) {
+                    $data->content_paragraphs = array();
+                }
+                if (!isset($data->term)) {
+                    $data->term = array();
+                }
+                if (!isset($data->definition)) {
+                    $data->definition = array();
+                }
+                if (!isset($data->example)) {
+                    $data->example = array();
+                }
+                if (!isset($data->audio_file)) {
+                    $data->audio_file = array();
+                }
+                if (!isset($data->response_text)) {
+                    $data->response_text = array();
+                }
+                
+                // Only extend arrays if they are too short, don't replace existing data
+                $currentTypeCount = count($data->type);
+                if ($currentTypeCount < $currentStepCount) {
+                    for ($i = $currentTypeCount; $i < $currentStepCount; $i++) {
+                        $data->type[$i] = 'text';
+                        $data->main_title[$i] = '';
+                        $data->sub_heading[$i] = '';
+                        $data->content_paragraphs[$i] = array('text' => '', 'format' => FORMAT_HTML);
+                        $data->term[$i] = '';
+                        $data->definition[$i] = '';
+                        $data->example[$i] = '';
+                        $data->audio_file[$i] = '';
+                        $data->response_text[$i] = 'tiep_theo';
+                    }
+                    error_log('Step by Step Form: get_data - Extended arrays from ' . $currentTypeCount . ' to ' . $currentStepCount);
+                }
+                
+                // Set the correct steps count
+                $data->steps = $currentStepCount;
+                error_log('Step by Step Form: get_data - Set steps count to: ' . $currentStepCount);
+            } else {
+                // No steps, ensure arrays are empty or not set
+                error_log('Step by Step Form: get_data - No steps to save, clearing arrays');
+                unset($data->type);
+                unset($data->main_title);
+                unset($data->sub_heading);
+                unset($data->content_paragraphs);
+                unset($data->term);
+                unset($data->definition);
+                unset($data->example);
+                unset($data->audio_file);
+                unset($data->response_text);
+                $data->steps = 0;
+            }
+            
+            // Debug: Log final step data
+            error_log('Step by Step Form: get_data - Final type array count = ' . (isset($data->type) ? count($data->type) : 'not set'));
+            error_log('Step by Step Form: get_data - Final main_title array count = ' . (isset($data->main_title) ? count($data->main_title) : 'not set'));
+        }
+        
+        return $data;
     }
 
     /**

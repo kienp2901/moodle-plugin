@@ -489,6 +489,7 @@
 .stepbystep-vocabulary-field,
 .stepbystep-common-field {
     /* Default styling - no custom colors or effects */
+    display: block;
 }
 
 /* Field styling */
@@ -517,39 +518,72 @@ textarea.stepbystep-vocabulary-field {
     min-height: 80px;
 }
 
-/* TinyMCE editor specific styling - Fixed size for content_paragraphs editor */
+/* TinyMCE editor specific styling - Flexible height for content_paragraphs editor */
 .tox.tox-tinymce {
-    min-height: 400px !important;
-    height: 400px !important;
-    max-height: 400px !important;
+    min-height: 480px !important;
+    height: auto !important;
+    max-height: 600px !important;
 }
 
 .tox .tox-edit-area {
-    min-height: 400px !important;
-    height: 400px !important;
-    max-height: 400px !important;
+    min-height: 480px !important;
+    height: auto !important;
+    max-height: 600px !important;
 }
 
 .tox .tox-edit-area__iframe {
-    min-height: 400px !important;
-    height: 400px !important;
-    max-height: 400px !important;
+    min-height: 480px !important;
+    height: auto !important;
+    max-height: 600px !important;
 }
 
 /* Specific styling for content_paragraphs editor textarea */
 textarea[name*="content_paragraphs"] {
-    min-height: 400px !important;
-    height: 400px !important;
-    max-height: 400px !important;
-    resize: none !important;
+    min-height: 480px !important;
+    height: auto !important;
+    max-height: 600px !important;
+    resize: vertical !important;
     overflow-y: auto !important;
 }
 
-/* Force TinyMCE container to have fixed height */
+/* Force TinyMCE container to have flexible height */
 div[data-fieldtype="editor"] .tox.tox-tinymce {
-    min-height: 400px !important;
-    height: 400px !important;
-    max-height: 400px !important;
+    min-height: 480px !important;
+    height: auto !important;
+    max-height: 600px !important;
+}
+
+/* Additional TinyMCE styling for better scroll behavior */
+.tox .tox-edit-area__iframe {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* Ensure TinyMCE toolbar doesn't interfere with content */
+.tox .tox-toolbar {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+    background: white !important;
+}
+
+/* Better scrollbar styling for TinyMCE */
+.tox .tox-edit-area__iframe::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tox .tox-edit-area__iframe::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.tox .tox-edit-area__iframe::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.tox .tox-edit-area__iframe::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
 }
 
 /* Label styling */
@@ -696,6 +730,28 @@ div[data-fieldtype="editor"] .tox.tox-tinymce {
 
 .stepbystep-remove-step:hover {
     background-color: #c82333;
+}
+
+/* Remove button positioning - standalone row */
+.stepbystep-remove-btn {
+    display: block !important;
+    width: 100% !important;
+    margin: 10px 0 !important;
+    text-align: center !important;
+    float: none !important;
+}
+
+.stepbystep-remove-btn .col-md-9 {
+    justify-content: flex-end;
+    max-width: 100%;
+}
+
+/* Container for remove button to ensure it's on its own row */
+.fitem:has(.stepbystep-remove-btn) {
+    clear: both !important;
+    margin-top: 15px !important;
+    padding-top: 10px !important;
+    border-top: 1px solid #e9ecef !important;
 }
 
 /* Field label styling */
