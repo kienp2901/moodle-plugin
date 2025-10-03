@@ -36,6 +36,12 @@ require_once($CFG->dirroot.'/course/moodleform_mod.php');
 class mod_stepbystep_mod_form extends moodleform_mod {
 
     /**
+     * Current step count for form processing
+     * @var int
+     */
+    public $currentStepCount = 0;
+
+    /**
      * Defines forms elements
      */
     public function definition() {
@@ -63,6 +69,24 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         } else {
             $this->add_intro_editor();
         }
+
+        // Adding vocabulary generation section after intro
+        $mform->addElement('header', 'vocabulary_generation', get_string('vocabulary_generation', 'mod_stepbystep'));
+        
+        // Vocabulary count field
+        $mform->addElement('text', 'vocabulary_count', get_string('vocabulary_count', 'mod_stepbystep'), 
+            array('size' => 5, 'maxlength' => 2));
+        $mform->setType('vocabulary_count', PARAM_INT);
+        $mform->addRule('vocabulary_count', get_string('vocabulary_count_help', 'mod_stepbystep'), 'numeric', null, 'client');
+        $mform->addRule('vocabulary_count', get_string('vocabulary_count_help', 'mod_stepbystep'), 'minlength', 1, 'client');
+        $mform->addRule('vocabulary_count', get_string('vocabulary_count_help', 'mod_stepbystep'), 'maxlength', 2, 'client');
+        $mform->addHelpButton('vocabulary_count', 'vocabulary_count', 'mod_stepbystep');
+        $mform->setDefault('vocabulary_count', 10);
+        
+        // Generate vocabulary button
+        $mform->addElement('button', 'generate_vocabulary', get_string('generate_vocabulary', 'mod_stepbystep'), 
+            array('id' => 'generate_vocabulary_btn'));
+        $mform->addHelpButton('generate_vocabulary', 'generate_vocabulary', 'mod_stepbystep');
 
         // Adding the "content" fieldset for steps.
         $mform->addElement('header', 'content', get_string('content', 'mod_stepbystep'));
@@ -145,6 +169,12 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         $currentStepCount = optional_param('steps', $initialSteps, PARAM_INT);
         if ($currentStepCount < $initialSteps) {
             $currentStepCount = $initialSteps;
+        }
+        
+        // Debug: Check if we're adding steps
+        $steps_add = optional_param('steps_add', '', PARAM_TEXT);
+        if (!empty($steps_add)) {
+            error_log('Step by Step Form: steps_add parameter detected = ' . $steps_add);
         }
         
         error_log('Step by Step Form: definition - Initial steps: ' . $initialSteps . ', Current steps: ' . $currentStepCount);
@@ -488,6 +518,11 @@ class mod_stepbystep_mod_form extends moodleform_mod {
     public function data_preprocessing(&$defaultvalues) {
         global $DB;
         
+        // Set default vocabulary count
+        if (!isset($defaultvalues['vocabulary_count'])) {
+            $defaultvalues['vocabulary_count'] = 10;
+        }
+        
         if ($this->current && isset($this->current->id)) {
             // Get existing content steps
             $steps = $DB->get_records('stepbystep_content', 
@@ -802,6 +837,14 @@ class mod_stepbystep_mod_form extends moodleform_mod {
      */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+        
+        // Validate vocabulary count if provided
+        if (isset($data['vocabulary_count'])) {
+            $count = intval($data['vocabulary_count']);
+            if ($count < 1 || $count > 50) {
+                $errors['vocabulary_count'] = get_string('vocabulary_count_help', 'mod_stepbystep');
+            }
+        }
         
         // Check if at least one content step is provided
         if (isset($data['type']) && is_array($data['type'])) {

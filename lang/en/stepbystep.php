@@ -97,6 +97,17 @@ $string['completion_help'] = 'If enabled, activity completion is tracked, either
 $string['completionview'] = 'Student must view all steps to complete this activity';
 $string['completionview_desc'] = 'Student must view all steps to complete this activity';
 
+// Vocabulary generation
+$string['vocabulary_generation'] = 'Vocabulary Generation';
+$string['vocabulary_count'] = 'Number of vocabulary terms';
+$string['vocabulary_count_help'] = 'Enter the number of vocabulary terms to generate (1-50)';
+$string['generate_vocabulary'] = 'Generate Vocabulary';
+$string['generate_vocabulary_help'] = 'Click to automatically generate vocabulary terms based on the activity name';
+$string['generating'] = 'Generating...';
+$string['generation_success'] = 'Successfully generated {$a} vocabulary terms';
+$string['generation_error'] = 'Error generating vocabulary: {$a}';
+$string['validation_error'] = 'Please enter both activity name and vocabulary count before generating';
+
 // Error messages
 $string['error_no_content'] = 'You must provide at least one content step.';
 $string['error_invalid_type'] = 'Invalid step type selected.';

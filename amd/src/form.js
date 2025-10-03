@@ -99,6 +99,15 @@ define(['jquery'], function($) {
             
             // Initial update of remove buttons
             updateRemoveButtons();
+            
+            // Handle generate vocabulary button
+            $(document).on('click', '#generate_vocabulary_btn', function(e) {
+                e.preventDefault();
+                handleGenerateVocabulary();
+            });
+            
+            // Check if we need to populate generated vocabulary after page reload
+            populateGeneratedVocabulary();
         });
     };
 
@@ -613,6 +622,234 @@ define(['jquery'], function($) {
         var contentHeight = $textarea[0].scrollHeight;
         var newHeight = Math.max(480, Math.min(contentHeight, 600));
         $textarea.css('height', newHeight + 'px');
+    }
+
+    /**
+     * Handle generate vocabulary button click
+     */
+    function handleGenerateVocabulary() {
+        var $button = $('#generate_vocabulary_btn');
+        var $countField = $('input[name="vocabulary_count"]');
+        var $nameField = $('input[name="name"]');
+        
+        // Validate inputs
+        var count = parseInt($countField.val());
+        var name = $nameField.val().trim();
+        
+        if (!name) {
+            alert('Please enter activity name before generating vocabulary');
+            $nameField.focus();
+            return;
+        }
+        
+        if (!count || isNaN(count) || count < 1 || count > 50) {
+            alert('Please enter a valid vocabulary count (1-50)');
+            $countField.focus();
+            return;
+        }
+        
+        // Show loading state
+        var originalText = $button.text();
+        $button.text('Generating...').prop('disabled', true);
+        
+        // Prepare API request
+        var requestData = {
+            count: count,
+            topic: name
+        };
+        
+        // Make API call
+        $.ajax({
+            url: 'https://ai.microgem.io.vn/api/moodle/generate-vocalbulary',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(requestData),
+            timeout: 30000,
+            success: function(response) {
+                if (response.code === 200 && response.data && response.data.vocabulary) {
+                    console.log(response.data.vocabulary);
+                    // Generate vocabulary steps
+                    generateVocabularySteps(response.data.vocabulary);
+                    
+                    // Show success message
+                    alert('Successfully generated ' + response.data.vocabulary.length + ' vocabulary terms');
+                } else {
+                    alert('Error: Invalid response from API');
+                }
+            },
+            error: function(xhr, status, error) {
+                var errorMessage = 'Error generating vocabulary: ';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage += xhr.responseJSON.message;
+                } else {
+                    errorMessage += error;
+                }
+                alert(errorMessage);
+            },
+            complete: function() {
+                // Restore button state
+                $button.text(originalText).prop('disabled', false);
+            }
+        });
+    }
+
+    /**
+     * Generate vocabulary steps from API response
+     */
+    function generateVocabularySteps(vocabulary) {
+        // Get current step count
+        var currentSteps = parseInt($('input[name="steps"]').val()) || 0;
+        
+        // Calculate total steps needed
+        var totalSteps = currentSteps + vocabulary.length;
+        
+        // Update the steps count to add new steps
+        $('input[name="steps"]').val(totalSteps);
+        
+        // Store vocabulary data in sessionStorage for after page reload
+        sessionStorage.setItem('stepbystep_generated_vocabulary', JSON.stringify(vocabulary));
+        sessionStorage.setItem('stepbystep_current_steps', currentSteps);
+        sessionStorage.setItem('stepbystep_auto_add_steps', 'true');
+        
+        // Automatically trigger the Add step button by simulating a click
+        var $addButton = $('input[name="steps_add"]');
+        if ($addButton.length > 0) {
+            console.log('Automatically triggering Add step button to add', vocabulary.length, 'vocabulary steps');
+            
+            // Set scroll flag for after page reload
+            sessionStorage.setItem('stepbystep_scroll_after_add', 'true');
+            
+            // Since the button has data-no-submit="1", we need to trigger the form submission manually
+            // The button click will trigger the onclick handler but won't submit the form
+            // Set skipClientValidation as the button's onclick does
+            window.skipClientValidation = true;
+            
+            // Trigger the button click (this will execute the onclick handler)
+            $addButton.trigger('click');
+            
+            // Since the button has data-no-submit="1", we need to manually submit the form
+            // after a short delay to ensure the click handler has executed
+            setTimeout(function() {
+                // Find the form that contains the button (form ID is dynamic like mform1_v7ETQFeYzxOBr5e)
+                var $form = $addButton.closest('form');
+                console.log('Manually submitting form after button click, form ID:', $form.attr('id'));
+                
+                // Debug: Check if steps_add parameter is present
+                var stepsAddInput = $form.find('input[name="steps_add"]');
+                console.log('steps_add input found:', stepsAddInput.length > 0, 'value:', stepsAddInput.val());
+                
+                // Ensure steps_add parameter is present in the form
+                if (stepsAddInput.length === 0) {
+                    console.log('Creating steps_add input since it was not found');
+                    var $hiddenInput = $('<input>', {
+                        type: 'hidden',
+                        name: 'steps_add',
+                        value: 'Add step'
+                    });
+                    $form.append($hiddenInput);
+                }
+                
+                // $form.submit();
+            }, 100);
+            
+        } else {
+            console.error('Add step button not found, falling back to direct form submission');
+            // Fallback: direct form submission with steps_add parameter
+            // Find any form with class 'mform' (Moodle form)
+            var $form = $('form.mform');
+            if ($form.length > 0) {
+                var $hiddenInput = $('<input>', {
+                    type: 'hidden',
+                    name: 'steps_add',
+                    value: 'Add step'
+                });
+                $form.append($hiddenInput);
+                console.log('Fallback: submitting form with ID:', $form.attr('id'));
+                // $form.submit();
+            } else {
+                console.error('No Moodle form found for fallback submission');
+            }
+        }
+    }
+
+    /**
+     * Populate generated vocabulary data after page reload
+     */
+    function populateGeneratedVocabulary() {
+        var vocabularyData = sessionStorage.getItem('stepbystep_generated_vocabulary');
+        var currentSteps = sessionStorage.getItem('stepbystep_current_steps');
+        var autoAddSteps = sessionStorage.getItem('stepbystep_auto_add_steps');
+        
+        if (vocabularyData && currentSteps) {
+            try {
+                var vocabulary = JSON.parse(vocabularyData);
+                var startIndex = parseInt(currentSteps);
+                var isAutoAdd = autoAddSteps === 'true';
+                
+                console.log('Populating generated vocabulary (auto-add: ' + isAutoAdd + '):', vocabulary);
+                console.log('Starting from step index:', startIndex);
+                
+                // Wait a bit for the form to fully load, especially for auto-add mode
+                var initialDelay = isAutoAdd ? 1500 : 500;
+                
+                setTimeout(function() {
+                    // Populate each vocabulary step
+                    vocabulary.forEach(function(vocab, index) {
+                        var stepIndex = startIndex + index;
+                        
+                        console.log('Populating step ' + stepIndex + ' with:', vocab.Term);
+                        
+                        // Set step type to vocabulary and trigger change
+                        var $typeSelect = $('select[name="type[' + stepIndex + ']"]');
+                        if ($typeSelect.length > 0) {
+                            $typeSelect.val('vocabulary').trigger('change');
+                            
+                            // Wait for type change to take effect, then populate data
+                            setTimeout(function() {
+                                // Set vocabulary data
+                                $('input[name="term[' + stepIndex + ']"]').val(vocab.Term);
+                                $('textarea[name="definition[' + stepIndex + ']"]').val(vocab.definition_vi);
+                                $('textarea[name="example[' + stepIndex + ']"]').val(vocab.Example_en);
+                                
+                                console.log('Successfully populated step ' + stepIndex + ':', vocab.Term);
+                            }, (isAutoAdd ? 300 : 100) * index); // Longer delay for auto-add mode
+                        } else {
+                            console.warn('Step ' + stepIndex + ' type select not found');
+                        }
+                    });
+                    
+                    // Update remove buttons and scroll after populating
+                    setTimeout(function() {
+                        updateRemoveButtons();
+                        
+                        // Scroll to bottom for auto-add mode to show newly added steps
+                        if (isAutoAdd) {
+                            $('html, body').animate({
+                                scrollTop: $(document).height()
+                            }, 800);
+                            console.log('Auto-scrolled to bottom to show vocabulary steps');
+                        }
+                        
+                        console.log('Population completed for', vocabulary.length, 'vocabulary steps');
+                    }, vocabulary.length * (isAutoAdd ? 300 : 100) + 500);
+                    
+                }, initialDelay);
+                
+                // Clear session storage after completion
+                setTimeout(function() {
+                    sessionStorage.removeItem('stepbystep_generated_vocabulary');
+                    sessionStorage.removeItem('stepbystep_current_steps');
+                    sessionStorage.removeItem('stepbystep_auto_add_steps');
+                    console.log('Session storage cleared after vocabulary population');
+                }, vocabulary.length * (isAutoAdd ? 300 : 100) + 2000);
+                
+            } catch (e) {
+                console.error('Error parsing vocabulary data:', e);
+                sessionStorage.removeItem('stepbystep_generated_vocabulary');
+                sessionStorage.removeItem('stepbystep_current_steps');
+                sessionStorage.removeItem('stepbystep_auto_add_steps');
+            }
+        }
     }
 
     return {

@@ -24,41 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// No need to import these classes - they are global Moodle classes
-
-/**
- * Send vocabulary data to API
- *
- * @param string $term The vocabulary term
- * @param string $definition The definition of the term
- * @param string $example The example usage
- * @param string $apiurl The API endpoint URL
- * @return array API response with status and storage_path
- * @throws moodle_exception
- */
-function stepbystep_send_vocabulary_to_api($term, $definition, $example, $apiurl) {
-    $curl = new curl();
-    
-    $postdata = array(
-        'term' => $term,
-        'definition' => $definition,
-        'example' => $example
-    );
-    
-    $response = $curl->post($apiurl, $postdata);
-    
-    $result = json_decode($response);
-    
-    if (!isset($result->status) || !$result->status) {
-        throw new moodle_exception('apivocabularyerror', 'mod_stepbystep', '', $result->message ?? 'Unknown error');
-    }
-    
-    return [
-        'status' => $result->status,
-        'storage_path' => $result->storage_path ?? ''
-    ];
-}
-
 /**
  * List of features supported in Step by Step module
  * @param string $feature FEATURE_xx constant for requested feature
@@ -117,6 +82,23 @@ function stepbystep_add_instance($stepbystep, $mform = null) {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/mod/stepbystep/config/config.php');
 
+    // // Check if this is just adding steps (not saving the activity)
+    // $steps_add = optional_param('steps_add', '', PARAM_TEXT);
+    // $isAddingSteps = !empty($steps_add);
+    
+    // if ($isAddingSteps) {
+    //     error_log('Step by Step Add Instance: Only adding steps, not saving activity');
+    //     error_log('Step by Step Add Instance: steps_add parameter = ' . $steps_add);
+        
+    //     // In add mode, when adding steps, we should NOT save to database
+    //     // Just return without creating the instance
+    //     // The form will reload with the new step count and populate vocabulary data via JavaScript
+    //     return 0; // Return 0 to indicate no instance was created
+    // }
+
+    // // Remove vocabulary_count field as it's only used for generation
+    // unset($stepbystep->vocabulary_count);
+
     $stepbystep->timecreated = time();
     $stepbystep->timemodified = time();
 
@@ -169,23 +151,6 @@ function stepbystep_add_instance($stepbystep, $mform = null) {
                 $step->sortorder = $i;
                 $step->timecreated = time();
                 
-                // Call API for vocabulary type steps
-                // if ($content['type'] === 'vocabulary' && !empty($content['term'])) {
-                //     try {
-                //         $api_response = stepbystep_send_vocabulary_to_api(
-                //             $content['term'],
-                //             $content['definition'],
-                //             $content['example'],
-                //             $apiVocabularyUrl
-                //         );
-                //         $step->storage_path = $api_response['storage_path'];
-                //     } catch (Exception $e) {
-                //         // Log error but don't fail the entire operation
-                //         error_log('Stepbystep API error: ' . $e->getMessage());
-                //         // Continue without storage_path
-                //     }
-                // }
-                
                 $result = $DB->insert_record('stepbystep_content', $step);
             }
         }
@@ -210,6 +175,23 @@ function stepbystep_add_instance($stepbystep, $mform = null) {
 function stepbystep_update_instance($stepbystep, $mform = null) {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/mod/stepbystep/config/config.php');
+
+    // // Check if this is just adding steps (not saving the activity)
+    // $steps_add = optional_param('steps_add', '', PARAM_TEXT);
+    // $isAddingSteps = !empty($steps_add);
+    
+    // if ($isAddingSteps) {
+    //     error_log('Step by Step Update: Only adding steps, not saving activity');
+    //     error_log('Step by Step Update: steps_add parameter = ' . $steps_add);
+        
+    //     // In edit mode, when adding steps, we should NOT save to database
+    //     // Just return without updating the main record or steps
+    //     // The form will reload with the new step count and populate vocabulary data via JavaScript
+    //     return true;
+    // }
+
+    // // Remove vocabulary_count field as it's only used for generation
+    // unset($stepbystep->vocabulary_count);
 
     $stepbystep->timemodified = time();
     $stepbystep->id = $stepbystep->instance;
@@ -275,23 +257,6 @@ function stepbystep_update_instance($stepbystep, $mform = null) {
                 $step->storage_path = ''; // Initialize storage_path
                 $step->sortorder = $i;
                 $step->timecreated = time();
-                
-                // Call API for vocabulary type steps
-                // if ($content['type'] === 'vocabulary' && !empty($content['term'])) {
-                //     try {
-                //         $api_response = stepbystep_send_vocabulary_to_api(
-                //             $content['term'],
-                //             $content['definition'],
-                //             $content['example'],
-                //             $apiVocabularyUrl
-                //         );
-                //         $step->storage_path = $api_response['storage_path'];
-                //     } catch (Exception $e) {
-                //         // Log error but don't fail the entire operation
-                //         error_log('Stepbystep API error: ' . $e->getMessage());
-                //         // Continue without storage_path
-                //     }
-                // }
                 
                 $result = $DB->insert_record('stepbystep_content', $step);
             }
