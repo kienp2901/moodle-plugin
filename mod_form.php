@@ -83,6 +83,42 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         $mform->addHelpButton('vocabulary_count', 'vocabulary_count', 'mod_stepbystep');
         $mform->setDefault('vocabulary_count', 10);
         
+        // Checkbox to exclude existing vocabulary
+        $mform->addElement('advcheckbox', 'exclude_existing_vocab', 
+            get_string('exclude_existing_vocab', 'mod_stepbystep'), 
+            get_string('exclude_existing_vocab_label', 'mod_stepbystep'),
+            array('id' => 'id_exclude_existing_vocab'));
+        $mform->addHelpButton('exclude_existing_vocab', 'exclude_existing_vocab', 'mod_stepbystep');
+        $mform->setDefault('exclude_existing_vocab', 0);
+        
+        // Autocomplete multiselect for existing vocabulary (hidden by default)
+        // This will be populated by API in the future, using dummy data for now
+        $existingVocabOptions = array(
+            'apple' => 'apple - táo - An apple a day keeps the doctor away',
+            'book' => 'book - sách - I read a book every week',
+            'cat' => 'cat - con mèo - The cat is sleeping on the sofa',
+            'dog' => 'dog - con chó - My dog loves to play fetch',
+            'house' => 'house - ngôi nhà - We live in a beautiful house',
+            'water' => 'water - nước - Drink water every day',
+            'school' => 'school - trường học - Children go to school',
+            'computer' => 'computer - máy tính - I work on my computer',
+            'phone' => 'phone - điện thoại - Call me on my phone',
+            'friend' => 'friend - bạn bè - She is my best friend'
+        );
+        
+        $options = array(
+            'multiple' => true,
+            'noselectionstring' => get_string('select', 'core'),
+            'placeholder' => get_string('excluded_vocab_list_placeholder', 'mod_stepbystep')
+        );
+        
+        $mform->addElement('autocomplete', 'excluded_vocab_list', 
+            get_string('excluded_vocab_list', 'mod_stepbystep'), 
+            $existingVocabOptions,
+            $options);
+        $mform->addHelpButton('excluded_vocab_list', 'excluded_vocab_list', 'mod_stepbystep');
+        $mform->hideIf('excluded_vocab_list', 'exclude_existing_vocab', 'notchecked');
+        
         // Generate vocabulary button
         $mform->addElement('button', 'generate_vocabulary', get_string('generate_vocabulary', 'mod_stepbystep'), 
             array('id' => 'generate_vocabulary_btn'));
