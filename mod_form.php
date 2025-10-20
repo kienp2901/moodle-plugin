@@ -119,6 +119,14 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         $mform->addHelpButton('excluded_vocab_list', 'excluded_vocab_list', 'mod_stepbystep');
         $mform->hideIf('excluded_vocab_list', 'exclude_existing_vocab', 'notchecked');
         
+        // Checkbox to confirm auto-create steps
+        $mform->addElement('advcheckbox', 'auto_create_steps', 
+            get_string('auto_create_steps', 'mod_stepbystep'), 
+            get_string('auto_create_steps_label', 'mod_stepbystep'),
+            array('id' => 'id_auto_create_steps'));
+        $mform->addHelpButton('auto_create_steps', 'auto_create_steps', 'mod_stepbystep');
+        $mform->setDefault('auto_create_steps', 1);
+        
         // Generate vocabulary button
         $mform->addElement('button', 'generate_vocabulary', get_string('generate_vocabulary', 'mod_stepbystep'), 
             array('id' => 'generate_vocabulary_btn'));
