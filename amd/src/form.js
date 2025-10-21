@@ -652,15 +652,45 @@ define(['jquery'], function($) {
         var originalText = $button.text();
         $button.text('Generating...').prop('disabled', true);
         
+        // Get topic_id from excluded vocabulary list (only if exclude checkbox is checked)
+        var topicIdString = "";
+        var $excludeExistingVocab = $('#id_exclude_existing_vocab');
+        if ($excludeExistingVocab.length > 0 && $excludeExistingVocab.is(':checked')) {
+            var $excludedVocabList = $('#id_excluded_vocab_list');
+            if ($excludedVocabList.length > 0) {
+                var selectedValues = $excludedVocabList.val();
+                if (selectedValues && selectedValues.length > 0) {
+                    // Convert array to comma-separated string
+                    topicIdString = selectedValues.join(',');
+                }
+            }
+        }
+        
+        // Get ems_render_question from quiz generation type
+        var emsRenderQuestion = 1; // Default: no quiz
+        var $quizGenerationType = $('#id_quiz_generation');
+        if ($quizGenerationType.length > 0) {
+            var quizTypeValue = $quizGenerationType.val();
+            if (quizTypeValue) {
+                emsRenderQuestion = parseInt(quizTypeValue);
+            }
+        }
+        
         // Prepare API request
         var requestData = {
             count: count,
-            topic: name
+            topic: name,
+            topic_id: topicIdString,
+            ems_render_question: emsRenderQuestion
         };
+        
+        console.log('API Request Data:', requestData);
+        console.log('Topic IDs (excluded vocab):', topicIdString);
+        console.log('Quiz render type:', emsRenderQuestion);
         
         // Make API call
         $.ajax({
-            url: 'https://ai.microgem.io.vn/api/moodle/generate-vocalbulary',
+            url: 'https://ai.ieltscheckmate.edu.vn/api/moodle/generate-vocalbulary',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(requestData),

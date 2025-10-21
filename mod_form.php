@@ -91,20 +91,8 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         $mform->addHelpButton('exclude_existing_vocab', 'exclude_existing_vocab', 'mod_stepbystep');
         $mform->setDefault('exclude_existing_vocab', 0);
         
-        // Autocomplete multiselect for existing vocabulary (hidden by default)
-        // This will be populated by API in the future, using dummy data for now
-        $existingVocabOptions = array(
-            'apple' => 'apple - táo - An apple a day keeps the doctor away',
-            'book' => 'book - sách - I read a book every week',
-            'cat' => 'cat - con mèo - The cat is sleeping on the sofa',
-            'dog' => 'dog - con chó - My dog loves to play fetch',
-            'house' => 'house - ngôi nhà - We live in a beautiful house',
-            'water' => 'water - nước - Drink water every day',
-            'school' => 'school - trường học - Children go to school',
-            'computer' => 'computer - máy tính - I work on my computer',
-            'phone' => 'phone - điện thoại - Call me on my phone',
-            'friend' => 'friend - bạn bè - She is my best friend'
-        );
+        // Autocomplete multiselect for existing vocabulary (loaded from API)
+        $existingVocabOptions = $this->get_existing_topics_from_api();
         
         $options = array(
             'multiple' => true,
@@ -119,13 +107,20 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         $mform->addHelpButton('excluded_vocab_list', 'excluded_vocab_list', 'mod_stepbystep');
         $mform->hideIf('excluded_vocab_list', 'exclude_existing_vocab', 'notchecked');
         
-        // Checkbox to confirm auto-create steps
-        $mform->addElement('advcheckbox', 'auto_create_steps', 
-            get_string('auto_create_steps', 'mod_stepbystep'), 
-            get_string('auto_create_steps_label', 'mod_stepbystep'),
-            array('id' => 'id_auto_create_steps'));
-        $mform->addHelpButton('auto_create_steps', 'auto_create_steps', 'mod_stepbystep');
-        $mform->setDefault('auto_create_steps', 1);
+        // Quiz component generation type
+        $quizOptions = array(
+            '1' => get_string('quiz_type_none', 'mod_stepbystep'),
+            '2' => get_string('quiz_type_single_choice', 'mod_stepbystep'),
+            '3' => get_string('quiz_type_short_answer', 'mod_stepbystep'),
+            '4' => get_string('quiz_type_random', 'mod_stepbystep')
+        );
+        $mform->addElement('select', 'quiz_generation', 
+            get_string('quiz_generation', 'mod_stepbystep'), 
+            $quizOptions,
+            array('id' => 'id_quiz_generation'));
+        $mform->addHelpButton('quiz_generation', 'quiz_generation', 'mod_stepbystep');
+        $mform->setDefault('quiz_generation', '1'); // Default: no quiz
+        $mform->setType('quiz_generation', PARAM_TEXT); // Explicitly set as text to avoid required
         
         // Generate vocabulary button
         $mform->addElement('button', 'generate_vocabulary', get_string('generate_vocabulary', 'mod_stepbystep'), 
@@ -944,5 +939,73 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         );
         
         return isset($responseMapping[$key]) ? $responseMapping[$key] : $key;
+    }
+
+    /**
+     * Get existing topics from API
+     *
+     * @return array Array of topics for autocomplete
+     */
+    private function get_existing_topics_from_api() {
+        global $CFG;
+        
+        // Load API configuration
+        $configFile = $CFG->dirroot . '/mod/stepbystep/config/config.php';
+        if (file_exists($configFile)) {
+            include($configFile);
+        } else {
+            error_log('Step by Step Form: Config file not found');
+            return array();
+        }
+        
+        // Use API domain from config
+        $apiUrl = isset($apiDoamin) ? $apiDoamin . '/api/moodle/topic' : 'https://ai.ieltscheckmate.edu.vn/api/moodle/topic';
+        
+        // Initialize cURL
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $apiUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json'
+        ));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10); // 10 second timeout
+        
+        // Execute request
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+        
+        // Check for errors
+        if ($curlError) {
+            error_log('Step by Step Form: cURL error when fetching topics: ' . $curlError);
+            return array();
+        }
+        
+        if ($httpCode !== 200) {
+            error_log('Step by Step Form: API returned HTTP ' . $httpCode . ' when fetching topics');
+            return array();
+        }
+        
+        // Parse JSON response
+        $result = json_decode($response, true);
+        
+        if (!$result || !isset($result['code']) || $result['code'] !== 200 || !isset($result['data'])) {
+            error_log('Step by Step Form: Invalid API response when fetching topics');
+            return array();
+        }
+        
+        // Build options array for autocomplete
+        $options = array();
+        foreach ($result['data'] as $topic) {
+            if (isset($topic['id']) && isset($topic['name'])) {
+                // Use topic code as key and topic name as display value
+                $options[$topic['id']] = $topic['name'];
+            }
+        }
+        
+        error_log('Step by Step Form: Successfully loaded ' . count($options) . ' topics from API');
+        
+        return $options;
     }
 }
