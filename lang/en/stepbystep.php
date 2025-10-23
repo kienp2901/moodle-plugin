@@ -99,6 +99,8 @@ $string['completionview_desc'] = 'Student must view all steps to complete this a
 
 // Vocabulary generation
 $string['vocabulary_generation'] = 'Vocabulary Generation';
+$string['vocabulary_topic'] = 'Topic';
+$string['vocabulary_topic_help'] = 'Enter the topic or theme for vocabulary generation (e.g., "IELTS Reading", "Business English")';
 $string['vocabulary_count'] = 'Number of vocabulary terms';
 $string['vocabulary_count_help'] = 'Enter the number of vocabulary terms to generate (1-50)';
 $string['exclude_existing_vocab'] = 'Exclude existing vocabulary';

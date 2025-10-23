@@ -630,15 +630,15 @@ define(['jquery'], function($) {
     function handleGenerateVocabulary() {
         var $button = $('#generate_vocabulary_btn');
         var $countField = $('input[name="vocabulary_count"]');
-        var $nameField = $('input[name="name"]');
+        var $topicField = $('input[name="vocabulary_topic"]');
         
         // Validate inputs
         var count = parseInt($countField.val());
-        var name = $nameField.val().trim();
+        var topic = $topicField.val().trim();
         
-        if (!name) {
-            alert('Please enter activity name before generating vocabulary');
-            $nameField.focus();
+        if (!topic) {
+            alert('Please enter topic before generating vocabulary');
+            $topicField.focus();
             return;
         }
         
@@ -679,7 +679,7 @@ define(['jquery'], function($) {
         // Prepare API request
         var requestData = {
             count: count,
-            topic: name,
+            topic: topic,
             topic_id: topicIdString,
             ems_render_question: emsRenderQuestion
         };

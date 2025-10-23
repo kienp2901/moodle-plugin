@@ -73,6 +73,12 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         // Adding vocabulary generation section after intro
         $mform->addElement('header', 'vocabulary_generation', get_string('vocabulary_generation', 'mod_stepbystep'));
         
+        // Topic field
+        $mform->addElement('text', 'vocabulary_topic', get_string('vocabulary_topic', 'mod_stepbystep'), 
+            array('size' => 50));
+        $mform->setType('vocabulary_topic', PARAM_TEXT);
+        $mform->addHelpButton('vocabulary_topic', 'vocabulary_topic', 'mod_stepbystep');
+        
         // Vocabulary count field
         $mform->addElement('text', 'vocabulary_count', get_string('vocabulary_count', 'mod_stepbystep'), 
             array('size' => 5, 'maxlength' => 2));
