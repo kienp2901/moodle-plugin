@@ -676,25 +676,37 @@ define(['jquery'], function($) {
             }
         }
         
+        // Get level from level field
+        var level = 1; // Default: vocabulary
+        var $levelField = $('#id_level');
+        if ($levelField.length > 0) {
+            var levelValue = $levelField.val();
+            if (levelValue) {
+                level = parseInt(levelValue);
+            }
+        }
+        
         // Prepare API request
         var requestData = {
             count: count,
             topic: topic,
             topic_id: topicIdString,
-            ems_render_question: emsRenderQuestion
+            ems_render_question: emsRenderQuestion,
+            level: level
         };
         
         console.log('API Request Data:', requestData);
         console.log('Topic IDs (excluded vocab):', topicIdString);
         console.log('Quiz render type:', emsRenderQuestion);
+        console.log('Level:', level);
         
         // Make API call
         $.ajax({
-            url: 'https://ai.ieltscheckmate.edu.vn/api/moodle/generate-vocalbulary',
+            url: 'https://ai.microgem.io.vn/api/moodle/generate-vocalbulary',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(requestData),
-            timeout: 30000,
+            timeout: 300000, // 5 minutes in milliseconds
             success: function(response) {
                 if (response.code === 200 && response.data && response.data.vocabulary) {
                     console.log(response.data.vocabulary);

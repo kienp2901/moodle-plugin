@@ -128,6 +128,19 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         $mform->setDefault('quiz_generation', '1'); // Default: no quiz
         $mform->setType('quiz_generation', PARAM_TEXT); // Explicitly set as text to avoid required
         
+        // Level field
+        $levelOptions = array(
+            '1' => 'Vocabulary',
+            '2' => 'Collaction'
+        );
+        $mform->addElement('select', 'level', 
+            get_string('level', 'mod_stepbystep'), 
+            $levelOptions,
+            array('id' => 'id_level'));
+        $mform->addHelpButton('level', 'level', 'mod_stepbystep');
+        $mform->setDefault('level', '1'); // Default: vocabulary
+        $mform->setType('level', PARAM_TEXT);
+        
         // Generate vocabulary button
         $mform->addElement('button', 'generate_vocabulary', get_string('generate_vocabulary', 'mod_stepbystep'), 
             array('id' => 'generate_vocabulary_btn'));
