@@ -686,19 +686,67 @@ define(['jquery'], function($) {
             }
         }
         
+        // Collect all step content data
+        var stepsData = [];
+        $('select[name^="type["]').each(function() {
+            var $typeSelect = $(this);
+            var stepIndex = getStepIndex($typeSelect);
+            var stepType = $typeSelect.val();
+            
+            var stepData = {
+                index: stepIndex,
+                type: stepType
+            };
+            
+            // Get common fields
+            stepData.response_text = $('select[name="response_text[' + stepIndex + ']"]').val() || '';
+            
+            // Get all fields regardless of type (vocabulary fields)
+            stepData.term = $('input[name="term[' + stepIndex + ']"]').val() || '';
+            stepData.definition = $('textarea[name="definition[' + stepIndex + ']"]').val() || '';
+            stepData.example = $('textarea[name="example[' + stepIndex + ']"]').val() || '';
+            stepData.audio_file = $('input[name="audio_file[' + stepIndex + ']"]').val() || '';
+            
+            // Get all fields regardless of type (text fields)
+            stepData.main_title = $('input[name="main_title[' + stepIndex + ']"]').val() || '';
+            stepData.sub_heading = $('input[name="sub_heading[' + stepIndex + ']"]').val() || '';
+            
+            // Get content from textarea or TinyMCE editor
+            var $contentEditor = $('textarea[name="content_paragraphs[' + stepIndex + '][text]"]');
+            if ($contentEditor.length > 0) {
+                var editorId = $contentEditor.attr('id');
+                if (editorId && typeof tinymce !== 'undefined') {
+                    var editor = tinymce.get(editorId);
+                    if (editor) {
+                        stepData.content_paragraphs = editor.getContent();
+                    } else {
+                        stepData.content_paragraphs = $contentEditor.val() || '';
+                    }
+                } else {
+                    stepData.content_paragraphs = $contentEditor.val() || '';
+                }
+            } else {
+                stepData.content_paragraphs = '';
+            }
+            
+            stepsData.push(stepData);
+        });
+        
         // Prepare API request
         var requestData = {
             count: count,
             topic: topic,
             topic_id: topicIdString,
             ems_render_question: emsRenderQuestion,
-            level: level
+            level: level,
+            steps_content: stepsData
         };
         
         console.log('API Request Data:', requestData);
         console.log('Topic IDs (excluded vocab):', topicIdString);
         console.log('Quiz render type:', emsRenderQuestion);
         console.log('Level:', level);
+        console.log('Steps Content:', stepsData);
         
         // Make API call
         $.ajax({
