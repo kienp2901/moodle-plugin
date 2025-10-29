@@ -106,6 +106,12 @@ define(['jquery'], function($) {
                 handleGenerateVocabulary();
             });
             
+            // Handle generate question from text button
+            $(document).on('click', '#generate_question_from_text_btn', function(e) {
+                e.preventDefault();
+                handleGenerateQuestionFromText();
+            });
+            
             // Check if we need to populate generated vocabulary after page reload
             populateGeneratedVocabulary();
         });
@@ -769,6 +775,158 @@ define(['jquery'], function($) {
             },
             error: function(xhr, status, error) {
                 var errorMessage = 'Error generating vocabulary: ';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage += xhr.responseJSON.message;
+                } else {
+                    errorMessage += error;
+                }
+                alert(errorMessage);
+            },
+            complete: function() {
+                // Restore button state
+                $button.text(originalText).prop('disabled', false);
+            }
+        });
+    }
+
+    /**
+     * Handle generate question from text button click
+     */
+    function handleGenerateQuestionFromText() {
+        var $button = $('#generate_question_from_text_btn');
+        var $countField = $('input[name="vocabulary_count"]');
+        var $topicField = $('input[name="vocabulary_topic"]');
+        
+        // Validate inputs
+        var count = parseInt($countField.val());
+        var topic = $topicField.val().trim();
+        
+        if (!topic) {
+            alert('Please enter topic before generating questions');
+            $topicField.focus();
+            return;
+        }
+        
+        if (!count || isNaN(count) || count < 1 || count > 50) {
+            alert('Please enter a valid count (1-50)');
+            $countField.focus();
+            return;
+        }
+        
+        // Show loading state
+        var originalText = $button.text();
+        $button.text('Generating...').prop('disabled', true);
+        
+        // Get topic_id from excluded vocabulary list (only if exclude checkbox is checked)
+        var topicIdString = "";
+        var $excludeExistingVocab = $('#id_exclude_existing_vocab');
+        if ($excludeExistingVocab.length > 0 && $excludeExistingVocab.is(':checked')) {
+            var $excludedVocabList = $('#id_excluded_vocab_list');
+            if ($excludedVocabList.length > 0) {
+                var selectedValues = $excludedVocabList.val();
+                if (selectedValues && selectedValues.length > 0) {
+                    // Convert array to comma-separated string
+                    topicIdString = selectedValues.join(',');
+                }
+            }
+        }
+        
+        // Get ems_render_question from quiz generation type
+        var emsRenderQuestion = 1; // Default: no quiz
+        var $quizGenerationType = $('#id_quiz_generation');
+        if ($quizGenerationType.length > 0) {
+            var quizTypeValue = $quizGenerationType.val();
+            if (quizTypeValue) {
+                emsRenderQuestion = parseInt(quizTypeValue);
+            }
+        }
+        
+        // Get level from level field
+        var level = 1; // Default: vocabulary
+        var $levelField = $('#id_level');
+        if ($levelField.length > 0) {
+            var levelValue = $levelField.val();
+            if (levelValue) {
+                level = parseInt(levelValue);
+            }
+        }
+        
+        // Collect all step content data
+        var stepsData = [];
+        $('select[name^="type["]').each(function() {
+            var $typeSelect = $(this);
+            var stepIndex = getStepIndex($typeSelect);
+            var stepType = $typeSelect.val();
+            
+            var stepData = {
+                index: stepIndex,
+                type: stepType
+            };
+            
+            // Get common fields
+            stepData.response_text = $('select[name="response_text[' + stepIndex + ']"]').val() || '';
+            
+            // Get all fields regardless of type (vocabulary fields)
+            stepData.term = $('input[name="term[' + stepIndex + ']"]').val() || '';
+            stepData.definition = $('textarea[name="definition[' + stepIndex + ']"]').val() || '';
+            stepData.example = $('textarea[name="example[' + stepIndex + ']"]').val() || '';
+            stepData.audio_file = $('input[name="audio_file[' + stepIndex + ']"]').val() || '';
+            
+            // Get all fields regardless of type (text fields)
+            stepData.main_title = $('input[name="main_title[' + stepIndex + ']"]').val() || '';
+            stepData.sub_heading = $('input[name="sub_heading[' + stepIndex + ']"]').val() || '';
+            
+            // Get content from textarea or TinyMCE editor
+            var $contentEditor = $('textarea[name="content_paragraphs[' + stepIndex + '][text]"]');
+            if ($contentEditor.length > 0) {
+                var editorId = $contentEditor.attr('id');
+                if (editorId && typeof tinymce !== 'undefined') {
+                    var editor = tinymce.get(editorId);
+                    if (editor) {
+                        stepData.content_paragraphs = editor.getContent();
+                    } else {
+                        stepData.content_paragraphs = $contentEditor.val() || '';
+                    }
+                } else {
+                    stepData.content_paragraphs = $contentEditor.val() || '';
+                }
+            } else {
+                stepData.content_paragraphs = '';
+            }
+            
+            stepsData.push(stepData);
+        });
+        
+        // Prepare API request
+        var requestData = {
+            count: count,
+            topic: topic,
+            topic_id: topicIdString,
+            ems_render_question: emsRenderQuestion,
+            level: level,
+            steps_content: stepsData
+        };
+        
+        console.log('Generate Question from Text - API Request Data:', requestData);
+        console.log('Steps Content:', stepsData);
+        
+        // Make API call
+        $.ajax({
+            url: 'https://ai.microgem.io.vn/api/moodle/generate-question-from-text',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(requestData),
+            timeout: 300000, // 5 minutes in milliseconds
+            success: function(response) {
+                console.log('Generate question from text API response:', response);
+                if (response.code === 200) {
+                    alert('Successfully generated questions from text');
+                } else {
+                    alert('Error: Invalid response from API');
+                }
+            },
+            error: function(xhr, status, error) {
+                var errorMessage = 'Error generating questions from text: ';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage += xhr.responseJSON.message;
                 } else {

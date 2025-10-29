@@ -145,6 +145,11 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         $mform->addElement('button', 'generate_vocabulary', get_string('generate_vocabulary', 'mod_stepbystep'), 
             array('id' => 'generate_vocabulary_btn'));
         $mform->addHelpButton('generate_vocabulary', 'generate_vocabulary', 'mod_stepbystep');
+        
+        // Generate question from text button
+        $mform->addElement('button', 'generate_question_from_text', get_string('generate_question_from_text', 'mod_stepbystep'), 
+            array('id' => 'generate_question_from_text_btn'));
+        $mform->addHelpButton('generate_question_from_text', 'generate_question_from_text', 'mod_stepbystep');
 
         // Adding the "content" fieldset for steps.
         $mform->addElement('header', 'content', get_string('content', 'mod_stepbystep'));
