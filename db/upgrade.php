@@ -46,6 +46,18 @@ function xmldb_stepbystep_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024121916, 'stepbystep');
     }
 
+    if ($oldversion < 2024121983) {
+        // Add phonetic field to stepbystep_content table for vocabulary pronunciation
+        $table = new xmldb_table('stepbystep_content');
+        $field = new xmldb_field('phonetic', XMLDB_TYPE_TEXT, null, null, null, null, null, 'term');
+        
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        upgrade_mod_savepoint(true, 2024121983, 'stepbystep');
+    }
+
     // if ($oldversion < 2024083030) {
     //     // Remove title field from stepbystep_content table
     //     $table = new xmldb_table('stepbystep_content');

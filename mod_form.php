@@ -182,6 +182,10 @@ class mod_stepbystep_mod_form extends moodleform_mod {
         $repeatarray[] = $mform->createElement('text', 'term', get_string('term', 'mod_stepbystep'), 
             array('size' => 50, 'class' => 'stepbystep-vocabulary-field'));
         
+        // Phonetic field (for vocabulary type)
+        $repeatarray[] = $mform->createElement('text', 'phonetic', get_string('phonetic', 'mod_stepbystep'), 
+            array('size' => 50, 'class' => 'stepbystep-vocabulary-field'));
+        
         // Definition field (for vocabulary type)
         $repeatarray[] = $mform->createElement('textarea', 'definition', get_string('definition', 'mod_stepbystep'), 
             array('rows' => 3, 'cols' => 50, 'class' => 'stepbystep-vocabulary-field'));
@@ -277,6 +281,7 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                 $mform->setDefault('content_paragraphs[' . $i . '][text]', '');
                 $mform->setDefault('content_paragraphs[' . $i . '][format]', FORMAT_HTML);
                 $mform->setDefault('term[' . $i . ']', '');
+                $mform->setDefault('phonetic[' . $i . ']', '');
                 $mform->setDefault('definition[' . $i . ']', '');
                 $mform->setDefault('example[' . $i . ']', '');
                 $mform->setDefault('audio_file[' . $i . ']', '');
@@ -288,6 +293,7 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                 $mform->setDefault('sub_heading[' . $i . ']', null);
                 $mform->setDefault('content_paragraphs[' . $i . '][text]', null);
                 $mform->setDefault('term[' . $i . ']', null);
+                $mform->setDefault('phonetic[' . $i . ']', null);
                 $mform->setDefault('definition[' . $i . ']', null);
                 $mform->setDefault('example[' . $i . ']', null);
                 $mform->setDefault('audio_file[' . $i . ']', null);
@@ -298,6 +304,7 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                 $mform->setDefault('content_paragraphs[' . $i . '][text]', '');
                 $mform->setDefault('content_paragraphs[' . $i . '][format]', FORMAT_HTML);
                 $mform->setDefault('term[' . $i . ']', '');
+                $mform->setDefault('phonetic[' . $i . ']', '');
                 $mform->setDefault('definition[' . $i . ']', '');
                 $mform->setDefault('example[' . $i . ']', '');
                 $mform->setDefault('audio_file[' . $i . ']', '');
@@ -399,11 +406,13 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                         $this->_form->setDefault('content_paragraphs[' . $formIndex . '][format]', FORMAT_HTML);
                         // Set empty values for vocabulary fields to avoid conflicts
                         $this->_form->setDefault('term[' . $formIndex . ']', '');
+                        $this->_form->setDefault('phonetic[' . $formIndex . ']', '');
                         $this->_form->setDefault('definition[' . $formIndex . ']', '');
                         $this->_form->setDefault('example[' . $formIndex . ']', '');
                         $this->_form->setDefault('audio_file[' . $formIndex . ']', '');
                     } else if ($step->type === 'vocabulary') {
                         $this->_form->setDefault('term[' . $formIndex . ']', $step->term);
+                        $this->_form->setDefault('phonetic[' . $formIndex . ']', isset($step->phonetic) ? $step->phonetic : '');
                         $this->_form->setDefault('definition[' . $formIndex . ']', $step->definition);
                         $this->_form->setDefault('example[' . $formIndex . ']', $step->example);
                         $this->_form->setDefault('audio_file[' . $formIndex . ']', $step->audio_file);
@@ -454,6 +463,7 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                     $this->_form->setDefault('content_paragraphs[' . $i . '][text]', '');
                     $this->_form->setDefault('content_paragraphs[' . $i . '][format]', FORMAT_HTML);
                     $this->_form->setDefault('term[' . $i . ']', '');
+                    $this->_form->setDefault('phonetic[' . $i . ']', '');
                     $this->_form->setDefault('definition[' . $i . ']', '');
                     $this->_form->setDefault('example[' . $i . ']', '');
                     $this->_form->setDefault('audio_file[' . $i . ']', '');
@@ -465,6 +475,7 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                     $this->_form->setDefault('sub_heading[' . $i . ']', null);
                     $this->_form->setDefault('content_paragraphs[' . $i . '][text]', null);
                     $this->_form->setDefault('term[' . $i . ']', null);
+                    $this->_form->setDefault('phonetic[' . $i . ']', null);
                     $this->_form->setDefault('definition[' . $i . ']', null);
                     $this->_form->setDefault('example[' . $i . ']', null);
                     $this->_form->setDefault('audio_file[' . $i . ']', null);
@@ -514,6 +525,7 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                 $this->_form->setDefault('content_paragraphs[' . $i . '][text]', '');
                 $this->_form->setDefault('content_paragraphs[' . $i . '][format]', FORMAT_HTML);
                 $this->_form->setDefault('term[' . $i . ']', '');
+                $this->_form->setDefault('phonetic[' . $i . ']', '');
                 $this->_form->setDefault('definition[' . $i . ']', '');
                 $this->_form->setDefault('example[' . $i . ']', '');
                 $this->_form->setDefault('audio_file[' . $i . ']', '');
@@ -525,6 +537,7 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                 $this->_form->setDefault('sub_heading[' . $i . ']', null);
                 $this->_form->setDefault('content_paragraphs[' . $i . '][text]', null);
                 $this->_form->setDefault('term[' . $i . ']', null);
+                $this->_form->setDefault('phonetic[' . $i . ']', null);
                 $this->_form->setDefault('definition[' . $i . ']', null);
                 $this->_form->setDefault('example[' . $i . ']', null);
                 $this->_form->setDefault('audio_file[' . $i . ']', null);
@@ -535,6 +548,7 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                 $this->_form->setDefault('content_paragraphs[' . $i . '][text]', '');
                 $this->_form->setDefault('content_paragraphs[' . $i . '][format]', FORMAT_HTML);
                 $this->_form->setDefault('term[' . $i . ']', '');
+                $this->_form->setDefault('phonetic[' . $i . ']', '');
                 $this->_form->setDefault('definition[' . $i . ']', '');
                 $this->_form->setDefault('example[' . $i . ']', '');
                 $this->_form->setDefault('audio_file[' . $i . ']', '');
@@ -601,6 +615,7 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                 $defaultvalues['sub_heading'] = array();
                 $defaultvalues['content_paragraphs'] = array();
                 $defaultvalues['term'] = array();
+                $defaultvalues['phonetic'] = array();
                 $defaultvalues['definition'] = array();
                 $defaultvalues['example'] = array();
                 $defaultvalues['audio_file'] = array();
@@ -653,11 +668,13 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                         );
                         // Set empty values for vocabulary fields to avoid conflicts
                         $defaultvalues['term'][$index] = '';
+                        $defaultvalues['phonetic'][$index] = '';
                         $defaultvalues['definition'][$index] = '';
                         $defaultvalues['example'][$index] = '';
                         $defaultvalues['audio_file'][$index] = '';
                     } else if ($step->type === 'vocabulary') {
                         $defaultvalues['term'][$index] = $step->term;
+                        $defaultvalues['phonetic'][$index] = isset($step->phonetic) ? $step->phonetic : '';
                         $defaultvalues['definition'][$index] = $step->definition;
                         $defaultvalues['example'][$index] = $step->example;
                         $defaultvalues['audio_file'][$index] = $step->audio_file;
@@ -685,6 +702,7 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                         'format' => FORMAT_HTML
                     );
                     $defaultvalues['term'][$i] = '';
+                    $defaultvalues['phonetic'][$i] = '';
                     $defaultvalues['definition'][$i] = '';
                     $defaultvalues['example'][$i] = '';
                     $defaultvalues['audio_file'][$i] = '';
@@ -767,6 +785,7 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                     $this->_form->setDefault('content_paragraphs[' . $i . '][text]', '');
                     $this->_form->setDefault('content_paragraphs[' . $i . '][format]', FORMAT_HTML);
                     $this->_form->setDefault('term[' . $i . ']', '');
+                    $this->_form->setDefault('phonetic[' . $i . ']', '');
                     $this->_form->setDefault('definition[' . $i . ']', '');
                     $this->_form->setDefault('example[' . $i . ']', '');
                     $this->_form->setDefault('audio_file[' . $i . ']', '');
@@ -835,6 +854,9 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                 if (!isset($data->term)) {
                     $data->term = array();
                 }
+                if (!isset($data->phonetic)) {
+                    $data->phonetic = array();
+                }
                 if (!isset($data->definition)) {
                     $data->definition = array();
                 }
@@ -857,6 +879,7 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                         $data->sub_heading[$i] = '';
                         $data->content_paragraphs[$i] = array('text' => '', 'format' => FORMAT_HTML);
                         $data->term[$i] = '';
+                        $data->phonetic[$i] = '';
                         $data->definition[$i] = '';
                         $data->example[$i] = '';
                         $data->audio_file[$i] = '';
@@ -876,6 +899,7 @@ class mod_stepbystep_mod_form extends moodleform_mod {
                 unset($data->sub_heading);
                 unset($data->content_paragraphs);
                 unset($data->term);
+                unset($data->phonetic);
                 unset($data->definition);
                 unset($data->example);
                 unset($data->audio_file);

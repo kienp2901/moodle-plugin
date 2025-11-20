@@ -121,6 +121,7 @@ function stepbystep_add_instance($stepbystep, $mform = null) {
                 'sub_heading' => isset($stepbystep->sub_heading[$i]) ? $stepbystep->sub_heading[$i] : '',
                 'content_paragraphs' => isset($stepbystep->content_paragraphs[$i]) ? $stepbystep->content_paragraphs[$i] : '',
                 'term' => isset($stepbystep->term[$i]) ? $stepbystep->term[$i] : '',
+                'phonetic' => isset($stepbystep->phonetic[$i]) ? $stepbystep->phonetic[$i] : '',
                 'definition' => isset($stepbystep->definition[$i]) ? $stepbystep->definition[$i] : '',
                 'example' => isset($stepbystep->example[$i]) ? $stepbystep->example[$i] : '',
                 'audio_file' => isset($stepbystep->audio_file[$i]) ? $stepbystep->audio_file[$i] : '',
@@ -143,6 +144,7 @@ function stepbystep_add_instance($stepbystep, $mform = null) {
                 }
                 
                 $step->term = $content['term'];
+                $step->phonetic = $content['phonetic'];
                 $step->definition = $content['definition'];
                 $step->example = $content['example'];
                 $step->audio_file = $content['audio_file'];
@@ -225,6 +227,7 @@ function stepbystep_update_instance($stepbystep, $mform = null) {
                 'sub_heading' => isset($stepbystep->sub_heading[$i]) ? $stepbystep->sub_heading[$i] : '',
                 'content_paragraphs' => isset($stepbystep->content_paragraphs[$i]) ? $stepbystep->content_paragraphs[$i] : '',
                 'term' => isset($stepbystep->term[$i]) ? $stepbystep->term[$i] : '',
+                'phonetic' => isset($stepbystep->phonetic[$i]) ? $stepbystep->phonetic[$i] : '',
                 'definition' => isset($stepbystep->definition[$i]) ? $stepbystep->definition[$i] : '',
                 'example' => isset($stepbystep->example[$i]) ? $stepbystep->example[$i] : '',
                 'audio_file' => isset($stepbystep->audio_file[$i]) ? $stepbystep->audio_file[$i] : '',
@@ -250,6 +253,7 @@ function stepbystep_update_instance($stepbystep, $mform = null) {
                 }
                 
                 $step->term = $content['term'];
+                $step->phonetic = $content['phonetic'];
                 $step->definition = $content['definition'];
                 $step->example = $content['example'];
                 $step->audio_file = $content['audio_file'];

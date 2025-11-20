@@ -166,6 +166,7 @@ foreach ($steps as $step) {
         'sub_heading' => isset($step->sub_heading) ? format_text($step->sub_heading, FORMAT_HTML, array('context' => $context)) : '',
         'content_paragraphs' => isset($step->content_paragraphs) ? $step->content_paragraphs : '',
         'term' => $step->term,
+        'phonetic' => isset($step->phonetic) ? $step->phonetic : '',
         'definition' => $step->definition,
         'example' => $step->example,
         'audio_file' => $step->audio_file,

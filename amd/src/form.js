@@ -71,6 +71,7 @@ define(['jquery'], function($) {
                     $('input[name="sub_heading[' + stepIndex + ']"]').closest('.fitem'),
                     $('textarea[name="content_paragraphs[' + stepIndex + '][text]"]').closest('.fitem'),
                     $('input[name="term[' + stepIndex + ']"]').closest('.fitem'),
+                    $('input[name="phonetic[' + stepIndex + ']"]').closest('.fitem'),
                     $('textarea[name="definition[' + stepIndex + ']"]').closest('.fitem'),
                     $('textarea[name="example[' + stepIndex + ']"]').closest('.fitem'),
                     $('input[name="audio_file[' + stepIndex + ']"]').closest('.fitem'),
@@ -132,6 +133,7 @@ define(['jquery'], function($) {
             subHeading: $('input[name="sub_heading[' + stepIndex + ']"]').closest('.fitem'),
             contentParagraphs: $('textarea[name="content_paragraphs[' + stepIndex + '][text]"]').closest('.fitem'),
             term: $('input[name="term[' + stepIndex + ']"]').closest('.fitem'),
+            phonetic: $('input[name="phonetic[' + stepIndex + ']"]').closest('.fitem'),
             definition: $('textarea[name="definition[' + stepIndex + ']"]').closest('.fitem'),
             example: $('textarea[name="example[' + stepIndex + ']"]').closest('.fitem'),
             audioFile: $('input[name="audio_file[' + stepIndex + ']"]').closest('.fitem'),
@@ -143,14 +145,16 @@ define(['jquery'], function($) {
         stepFields.subHeading.hide();
         stepFields.contentParagraphs.hide();
         stepFields.term.hide();
+        stepFields.phonetic.hide();
         stepFields.definition.hide();
         stepFields.example.hide();
         stepFields.audioFile.hide();
         
         // Show relevant fields based on type
         if (selectedType === 'vocabulary') {
-            // Show vocabulary fields: term, definition, example, audio_file
+            // Show vocabulary fields: term, phonetic, definition, example, audio_file
             stepFields.term.show();
+            stepFields.phonetic.show();
             stepFields.definition.show();
             stepFields.example.show();
             stepFields.audioFile.show();
@@ -211,6 +215,7 @@ define(['jquery'], function($) {
         $('input[name="main_title[' + stepIndex + ']"]').val('');
         $('input[name="sub_heading[' + stepIndex + ']"]').val('');
         $('input[name="term[' + stepIndex + ']"]').val('');
+        $('input[name="phonetic[' + stepIndex + ']"]').val('');
         $('textarea[name="definition[' + stepIndex + ']"]').val('');
         $('textarea[name="example[' + stepIndex + ']"]').val('');
         $('input[name="audio_file[' + stepIndex + ']"]').val('');
@@ -362,6 +367,7 @@ define(['jquery'], function($) {
                     $('input[name="main_title[' + maxIndex + ']"]').val('');
                     $('input[name="sub_heading[' + maxIndex + ']"]').val('');
                     $('input[name="term[' + maxIndex + ']"]').val('');
+                    $('input[name="phonetic[' + maxIndex + ']"]').val('');
                     $('textarea[name="definition[' + maxIndex + ']"]').val('');
                     $('textarea[name="example[' + maxIndex + ']"]').val('');
                     $('input[name="audio_file[' + maxIndex + ']"]').val('');
@@ -464,6 +470,7 @@ define(['jquery'], function($) {
             $('input[name="sub_heading[' + stepIndex + ']"]').attr('name', 'sub_heading[' + newIndex + ']');
             $('textarea[name="content_paragraphs[' + stepIndex + '][text]"]').attr('name', 'content_paragraphs[' + newIndex + '][text]');
             $('input[name="term[' + stepIndex + ']"]').attr('name', 'term[' + newIndex + ']');
+            $('input[name="phonetic[' + stepIndex + ']"]').attr('name', 'phonetic[' + newIndex + ']');
             $('textarea[name="definition[' + stepIndex + ']"]').attr('name', 'definition[' + newIndex + ']');
             $('textarea[name="example[' + stepIndex + ']"]').attr('name', 'example[' + newIndex + ']');
             $('input[name="audio_file[' + stepIndex + ']"]').attr('name', 'audio_file[' + newIndex + ']');
@@ -709,6 +716,7 @@ define(['jquery'], function($) {
             
             // Get all fields regardless of type (vocabulary fields)
             stepData.term = $('input[name="term[' + stepIndex + ']"]').val() || '';
+            stepData.phonetic = $('input[name="phonetic[' + stepIndex + ']"]').val() || '';
             stepData.definition = $('textarea[name="definition[' + stepIndex + ']"]').val() || '';
             stepData.example = $('textarea[name="example[' + stepIndex + ']"]').val() || '';
             stepData.audio_file = $('input[name="audio_file[' + stepIndex + ']"]').val() || '';
@@ -868,6 +876,7 @@ define(['jquery'], function($) {
             
             // Get all fields regardless of type (vocabulary fields)
             stepData.term = $('input[name="term[' + stepIndex + ']"]').val() || '';
+            stepData.phonetic = $('input[name="phonetic[' + stepIndex + ']"]').val() || '';
             stepData.definition = $('textarea[name="definition[' + stepIndex + ']"]').val() || '';
             stepData.example = $('textarea[name="example[' + stepIndex + ']"]').val() || '';
             stepData.audio_file = $('input[name="audio_file[' + stepIndex + ']"]').val() || '';
@@ -1056,6 +1065,12 @@ define(['jquery'], function($) {
                             setTimeout(function() {
                                 // Set vocabulary data
                                 $('input[name="term[' + stepIndex + ']"]').val(vocab.Term);
+                                
+                                // Set phonetic if available in API response
+                                if (vocab.Phonetic || vocab.phonetic) {
+                                    $('input[name="phonetic[' + stepIndex + ']"]').val(vocab.Phonetic || vocab.phonetic);
+                                }
+                                
                                 $('textarea[name="definition[' + stepIndex + ']"]').val(vocab.definition_vi);
                                 $('textarea[name="example[' + stepIndex + ']"]').val(vocab.Example_en);
                                 
