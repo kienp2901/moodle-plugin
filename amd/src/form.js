@@ -764,7 +764,7 @@ define(['jquery'], function($) {
         
         // Make API call
         $.ajax({
-            url: 'https://ai.microgem.io.vn/api/moodle/generate-vocalbulary',
+            url: 'https://ai.ieltscheckmate.edu.vn/api/moodle/generate-vocalbulary',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(requestData),
@@ -921,7 +921,7 @@ define(['jquery'], function($) {
         
         // Make API call
         $.ajax({
-            url: 'https://ai.microgem.io.vn/api/moodle/generate-question-from-text',
+            url: 'https://ai.ieltscheckmate.edu.vn/api/moodle/generate-question-from-text',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(requestData),
