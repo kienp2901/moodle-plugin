@@ -102,6 +102,14 @@ function readingflow_add_instance($data, $mform = null) {
         $data->contentformat = FORMAT_HTML;
     }
 
+    // Handle lumos fields - set defaults if not set
+    if (!isset($data->lumos_reading_id)) {
+        $data->lumos_reading_id = 0;
+    }
+    if (!isset($data->lumos_reading_slug)) {
+        $data->lumos_reading_slug = '';
+    }
+
     $cmid = $data->coursemodule;
     $data->id = $DB->insert_record('readingflow', $data);
     
@@ -140,6 +148,14 @@ function readingflow_update_instance($data, $mform = null) {
         $data->contentformat = isset($data->content['format']) ? $data->content['format'] : FORMAT_HTML;
         $data->content = isset($data->content['text']) ? $data->content['text'] : '';
         
+        // Handle lumos fields - ensure they are set
+        if (!isset($data->lumos_reading_id)) {
+            $data->lumos_reading_id = 0;
+        }
+        if (!isset($data->lumos_reading_slug)) {
+            $data->lumos_reading_slug = '';
+        }
+        
         // Update record first
         $DB->update_record('readingflow', $data);
         
@@ -152,6 +168,13 @@ function readingflow_update_instance($data, $mform = null) {
     } else {
         if (!isset($data->contentformat)) {
             $data->contentformat = FORMAT_HTML;
+        }
+        // Handle lumos fields - ensure they are set
+        if (!isset($data->lumos_reading_id)) {
+            $data->lumos_reading_id = 0;
+        }
+        if (!isset($data->lumos_reading_slug)) {
+            $data->lumos_reading_slug = '';
         }
         $DB->update_record('readingflow', $data);
     }

@@ -40,7 +40,7 @@ class backup_readingflow_activity_structure_step extends backup_activity_structu
 
         // Define each element separated
         $readingflow = new backup_nested_element('readingflow', array('id'), array(
-            'name', 'intro', 'introformat', 'content', 'contentformat', 'timecreated', 'timemodified'));
+            'name', 'intro', 'introformat', 'content', 'contentformat', 'lumos_reading_id', 'lumos_reading_slug', 'timecreated', 'timemodified'));
 
         // Build the tree
         // (no special order, they are not exported yet)

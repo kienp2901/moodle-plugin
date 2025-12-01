@@ -59,6 +59,18 @@ class mod_readingflow_mod_form extends moodleform_mod {
         $mform->setType('content', PARAM_RAW);
         $mform->addHelpButton('content', 'content', 'mod_readingflow');
 
+        // Lumos fields
+        $mform->addElement('header', 'lumosheader', get_string('lumos_reading_id', 'mod_readingflow'));
+        
+        $mform->addElement('text', 'lumos_reading_id', get_string('lumos_reading_id', 'mod_readingflow'), array('size'=>'10'));
+        $mform->setType('lumos_reading_id', PARAM_INT);
+        $mform->addHelpButton('lumos_reading_id', 'lumos_reading_id', 'mod_readingflow');
+        
+        $mform->addElement('text', 'lumos_reading_slug', get_string('lumos_reading_slug', 'mod_readingflow'), array('size'=>'48'));
+        $mform->setType('lumos_reading_slug', PARAM_TEXT);
+        $mform->addRule('lumos_reading_slug', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+        $mform->addHelpButton('lumos_reading_slug', 'lumos_reading_slug', 'mod_readingflow');
+
         //-------------------------------------------------------
         $this->standard_coursemodule_elements();
 

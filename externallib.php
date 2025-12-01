@@ -57,6 +57,8 @@ class mod_readingflow_external extends external_api {
                 'introformat' => new external_value(PARAM_INT, 'Intro format', VALUE_DEFAULT, FORMAT_HTML),
                 'content' => new external_value(PARAM_RAW, 'Reading flow content', VALUE_DEFAULT, ''),
                 'contentformat' => new external_value(PARAM_INT, 'Content format', VALUE_DEFAULT, FORMAT_HTML),
+                'lumos_reading_id' => new external_value(PARAM_INT, 'Lumos reading ID', VALUE_DEFAULT, 0),
+                'lumos_reading_slug' => new external_value(PARAM_TEXT, 'Lumos reading slug', VALUE_DEFAULT, ''),
                 'section' => new external_value(PARAM_INT, 'Course section', VALUE_DEFAULT, 0),
                 'visible' => new external_value(PARAM_INT, 'Visible', VALUE_DEFAULT, 1),
                 'visibleoncoursepage' => new external_value(PARAM_INT, 'Visible on course page', VALUE_DEFAULT, 1),
@@ -79,6 +81,8 @@ class mod_readingflow_external extends external_api {
      * @param int $introformat Intro format
      * @param string $content Reading flow content
      * @param int $contentformat Content format
+     * @param int $lumos_reading_id Lumos reading ID
+     * @param string $lumos_reading_slug Lumos reading slug
      * @param int $section Course section
      * @param int $visible Visible
      * @param int $visibleoncoursepage Visible on course page
@@ -93,6 +97,7 @@ class mod_readingflow_external extends external_api {
      */
     public static function create_readingflow($courseid, $name, $intro = '', $introformat = FORMAT_HTML, 
                                          $content = '', $contentformat = FORMAT_HTML,
+                                         $lumos_reading_id = 0, $lumos_reading_slug = '',
                                          $section = 0, $visible = 1, $visibleoncoursepage = 1,
                                          $availabilityconditionsjson = '', $completionunlocked = 1,
                                          $completionview = 0, $completionexpected = 0, $tags = '',
@@ -107,6 +112,8 @@ class mod_readingflow_external extends external_api {
             'introformat' => $introformat,
             'content' => $content,
             'contentformat' => $contentformat,
+            'lumos_reading_id' => $lumos_reading_id,
+            'lumos_reading_slug' => $lumos_reading_slug,
             'section' => $section,
             'visible' => $visible,
             'visibleoncoursepage' => $visibleoncoursepage,
@@ -141,6 +148,8 @@ class mod_readingflow_external extends external_api {
         $data->introformat = $params['introformat'];
         $data->content = $params['content'];
         $data->contentformat = $params['contentformat'];
+        $data->lumos_reading_id = $params['lumos_reading_id'];
+        $data->lumos_reading_slug = $params['lumos_reading_slug'];
         $data->section = $params['section'];
         $data->visible = $params['visible'];
         $data->visibleoncoursepage = $params['visibleoncoursepage'];
@@ -190,6 +199,8 @@ class mod_readingflow_external extends external_api {
                 'introformat' => new external_value(PARAM_INT, 'Intro format'),
                 'content' => new external_value(PARAM_RAW, 'Reading flow content'),
                 'contentformat' => new external_value(PARAM_INT, 'Content format'),
+                'lumos_reading_id' => new external_value(PARAM_INT, 'Lumos reading ID'),
+                'lumos_reading_slug' => new external_value(PARAM_TEXT, 'Lumos reading slug'),
                 'timecreated' => new external_value(PARAM_INT, 'Time created'),
                 'timemodified' => new external_value(PARAM_INT, 'Time modified'),
                 'cmid' => new external_value(PARAM_INT, 'Course module ID'),
@@ -213,6 +224,8 @@ class mod_readingflow_external extends external_api {
                     'introformat' => new external_value(PARAM_INT, 'Định dạng mô tả', VALUE_OPTIONAL),
                     'content' => new external_value(PARAM_RAW, 'Nội dung readingflow', VALUE_OPTIONAL),
                     'contentformat' => new external_value(PARAM_INT, 'Định dạng nội dung', VALUE_OPTIONAL),
+                    'lumos_reading_id' => new external_value(PARAM_INT, 'Lumos reading ID', VALUE_OPTIONAL),
+                    'lumos_reading_slug' => new external_value(PARAM_TEXT, 'Lumos reading slug', VALUE_OPTIONAL),
                     'section' => new external_value(PARAM_INT, 'Section number', VALUE_OPTIONAL),
                     'visible' => new external_value(PARAM_INT, 'Hiển thị', VALUE_OPTIONAL),
                     'visibleoncoursepage' => new external_value(PARAM_INT, 'Visible on course page', VALUE_OPTIONAL),
@@ -421,6 +434,8 @@ class mod_readingflow_external extends external_api {
             'introformat' => $readingflow->introformat,
             'content' => $readingflow->content,
             'contentformat' => $readingflow->contentformat,
+            'lumos_reading_id' => $readingflow->lumos_reading_id ?? 0,
+            'lumos_reading_slug' => $readingflow->lumos_reading_slug ?? '',
             'timecreated' => $readingflow->timecreated,
             'timemodified' => $readingflow->timemodified,
             'cmid' => $cm->id,
@@ -450,6 +465,8 @@ class mod_readingflow_external extends external_api {
                 'introformat' => new external_value(PARAM_INT, 'Intro format'),
                 'content' => new external_value(PARAM_RAW, 'Reading flow content'),
                 'contentformat' => new external_value(PARAM_INT, 'Content format'),
+                'lumos_reading_id' => new external_value(PARAM_INT, 'Lumos reading ID'),
+                'lumos_reading_slug' => new external_value(PARAM_TEXT, 'Lumos reading slug'),
                 'timecreated' => new external_value(PARAM_INT, 'Time created'),
                 'timemodified' => new external_value(PARAM_INT, 'Time modified'),
                 'cmid' => new external_value(PARAM_INT, 'Course module ID'),

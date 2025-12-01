@@ -36,6 +36,10 @@ $string['intro'] = 'Description';
 $string['intro_help'] = 'Enter a description for this reading flow.';
 $string['content'] = 'Content';
 $string['content_help'] = 'Enter the content for this reading flow.';
+$string['lumos_reading_id'] = 'Lumos Reading ID';
+$string['lumos_reading_id_help'] = 'Enter the Lumos reading ID.';
+$string['lumos_reading_slug'] = 'Lumos Reading Slug';
+$string['lumos_reading_slug_help'] = 'Enter the Lumos reading slug.';
 
 $string['privacy:metadata'] = 'The Reading Flow plugin does not store any personal data.';
 
