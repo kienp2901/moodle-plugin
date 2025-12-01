@@ -397,7 +397,7 @@ class mod_readingflow_external extends external_api {
     public static function get_readingflow_parameters() {
         return new external_function_parameters(
             array(
-                'id' => new external_value(PARAM_INT, 'Reading flow instance ID'),
+                'cmid' => new external_value(PARAM_INT, 'Course module ID'),
             )
         );
     }
@@ -405,28 +405,28 @@ class mod_readingflow_external extends external_api {
     /**
      * Get reading flow instance details
      *
-     * @param int $id Reading flow instance ID
+     * @param int $cmid Course module ID
      * @return array
      * @throws moodle_exception
      */
-    public static function get_readingflow($id) {
+    public static function get_readingflow($cmid) {
         global $DB;
 
         // Validate parameters
         $params = self::validate_parameters(self::get_readingflow_parameters(), array(
-            'id' => $id,
+            'cmid' => $cmid,
         ));
 
-        // Get the readingflow instance
-        $readingflow = $DB->get_record('readingflow', array('id' => $params['id']), '*', MUST_EXIST);
-        $course = $DB->get_record('course', array('id' => $readingflow->course), '*', MUST_EXIST);
+        // Get course module
+        $cm = get_coursemodule_from_id('readingflow', $params['cmid'], 0, false, MUST_EXIST);
+        $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
         $context = \context_course::instance($course->id);
 
         // Check capabilities
         require_capability('mod/readingflow:view', $context);
 
-        // Get course module
-        $cm = get_coursemodule_from_instance('readingflow', $readingflow->id, $course->id, false, MUST_EXIST);
+        // Get the readingflow instance
+        $readingflow = $DB->get_record('readingflow', array('id' => $cm->instance), '*', MUST_EXIST);
 
         return array(
             'id' => $readingflow->id,
@@ -492,7 +492,7 @@ class mod_readingflow_external extends external_api {
     public static function delete_readingflow_parameters() {
         return new external_function_parameters(
             array(
-                'id' => new external_value(PARAM_INT, 'Reading flow instance ID'),
+                'cmid' => new external_value(PARAM_INT, 'Course module ID'),
             )
         );
     }
@@ -500,28 +500,28 @@ class mod_readingflow_external extends external_api {
     /**
      * Delete reading flow instance
      *
-     * @param int $id Reading flow instance ID
+     * @param int $cmid Course module ID
      * @return array
      * @throws moodle_exception
      */
-    public static function delete_readingflow($id) {
+    public static function delete_readingflow($cmid) {
         global $DB;
 
         // Validate parameters
         $params = self::validate_parameters(self::delete_readingflow_parameters(), array(
-            'id' => $id,
+            'cmid' => $cmid,
         ));
 
-        // Get the readingflow instance
-        $readingflow = $DB->get_record('readingflow', array('id' => $params['id']), '*', MUST_EXIST);
-        $course = $DB->get_record('course', array('id' => $readingflow->course), '*', MUST_EXIST);
+        // Get course module
+        $cm = get_coursemodule_from_id('readingflow', $params['cmid'], 0, false, MUST_EXIST);
+        $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
         $context = \context_course::instance($course->id);
 
         // Check capabilities
         require_capability('mod/readingflow:addinstance', $context);
 
         // Delete the readingflow instance
-        $result = readingflow_delete_instance($params['id']);
+        $result = readingflow_delete_instance($cm->instance);
 
         if (!$result) {
             throw new moodle_exception('errordeletingreadingflow', 'mod_readingflow');
