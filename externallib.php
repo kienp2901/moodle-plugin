@@ -177,6 +177,8 @@ class mod_readingflow_external extends external_api {
             'introformat' => $readingflow->introformat,
             'content' => $readingflow->content,
             'contentformat' => $readingflow->contentformat,
+            'lumos_reading_id' => $readingflow->lumos_reading_id ?? 0,
+            'lumos_reading_slug' => $readingflow->lumos_reading_slug ?? '',
             'timecreated' => $readingflow->timecreated,
             'timemodified' => $readingflow->timemodified,
             'cmid' => $cm->coursemodule,
