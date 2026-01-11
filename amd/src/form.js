@@ -32,6 +32,9 @@ define(['jquery'], function($) {
         
         // Initialize after DOM is ready
         $(document).ready(function() {
+            // Wrap steps into cards with numbers first
+            wrapStepsIntoCards();
+            
             // Add helper classes first
             addHelperClasses();
             
@@ -65,36 +68,46 @@ define(['jquery'], function($) {
                 var stepIndex = getStepIndex($button);
                 console.log('Remove step clicked for index:', stepIndex);
                 
-                // Find all field containers for this specific step
-                var stepFieldContainers = [
-                    $('input[name="main_title[' + stepIndex + ']"]').closest('.fitem'),
-                    $('input[name="sub_heading[' + stepIndex + ']"]').closest('.fitem'),
-                    $('textarea[name="content_paragraphs[' + stepIndex + '][text]"]').closest('.fitem'),
-                    $('input[name="term[' + stepIndex + ']"]').closest('.fitem'),
-                    $('input[name="phonetic[' + stepIndex + ']"]').closest('.fitem'),
-                    $('textarea[name="definition[' + stepIndex + ']"]').closest('.fitem'),
-                    $('textarea[name="example[' + stepIndex + ']"]').closest('.fitem'),
-                    $('input[name="audio_file[' + stepIndex + ']"]').closest('.fitem'),
-                    $('select[name="response_text[' + stepIndex + ']"]').closest('.fitem'),
-                    $('select[name="type[' + stepIndex + ']"]').closest('.fitem'),
-                    $('button[name="remove_step[' + stepIndex + ']"]').closest('.fitem')
-                ];
+                // Find the card containing this step (if exists)
+                var $stepCard = $button.closest('.stepbystep-step-card');
                 
-                // Remove all field containers for this step
-                var removedCount = 0;
-                stepFieldContainers.forEach(function($container) {
-                    if ($container.length > 0) {
-                        $container.remove();
-                        removedCount++;
-                    }
-                });
-                
-                console.log('Removed', removedCount, 'field containers for step index:', stepIndex);
+                if ($stepCard.length > 0) {
+                    // If wrapped in card, remove the entire card
+                    $stepCard.remove();
+                    console.log('Removed step card for index:', stepIndex);
+                } else {
+                    // Otherwise, remove individual field containers
+                    var stepFieldContainers = [
+                        $('input[name="main_title[' + stepIndex + ']"]').closest('.fitem'),
+                        $('input[name="sub_heading[' + stepIndex + ']"]').closest('.fitem'),
+                        $('textarea[name="content_paragraphs[' + stepIndex + '][text]"]').closest('.fitem'),
+                        $('input[name="term[' + stepIndex + ']"]').closest('.fitem'),
+                        $('input[name="phonetic[' + stepIndex + ']"]').closest('.fitem'),
+                        $('textarea[name="definition[' + stepIndex + ']"]').closest('.fitem'),
+                        $('textarea[name="example[' + stepIndex + ']"]').closest('.fitem'),
+                        $('input[name="audio_file[' + stepIndex + ']"]').closest('.fitem'),
+                        $('select[name="response_text[' + stepIndex + ']"]').closest('.fitem'),
+                        $('select[name="type[' + stepIndex + ']"]').closest('.fitem'),
+                        $('button[name="remove_step[' + stepIndex + ']"]').closest('.fitem')
+                    ];
+                    
+                    // Remove all field containers for this step
+                    var removedCount = 0;
+                    stepFieldContainers.forEach(function($container) {
+                        if ($container.length > 0) {
+                            $container.remove();
+                            removedCount++;
+                        }
+                    });
+                    
+                    console.log('Removed', removedCount, 'field containers for step index:', stepIndex);
+                }
                 
                 // Update step indices and remove buttons
                 setTimeout(function() {
                     reindexSteps();
                     updateRemoveButtons();
+                    updateStepCardNumbers();
                 }, 100);
             });
             
@@ -288,6 +301,10 @@ define(['jquery'], function($) {
                     clearLastStepContentAggressively();
                 }
                 
+                // Wrap steps into cards and update numbers
+                wrapStepsIntoCards();
+                updateStepCardNumbers();
+                
                 // Scroll to bottom
                 $('html, body').animate({
                     scrollTop: $(document).height()
@@ -411,6 +428,133 @@ define(['jquery'], function($) {
     }
 
     /**
+     * Wrap each step's fields into a card with step number
+     */
+    function wrapStepsIntoCards() {
+        console.log('Wrapping steps into cards...');
+        
+        // Find all step type selects
+        var $typeSelects = $('select[name^="type["]');
+        var stepCards = [];
+        
+        // Get all steps and their indices
+        $typeSelects.each(function(index) {
+            var $typeSelect = $(this);
+            var stepIndex = getStepIndex($typeSelect);
+            var $typeFitem = $typeSelect.closest('.fitem');
+            
+            // Check if this step is already wrapped in a card
+            if ($typeFitem.closest('.stepbystep-step-card').length > 0) {
+                console.log('Step ' + stepIndex + ' already wrapped in card, skipping');
+                return;
+            }
+            
+            // Find all field containers for this step
+            var stepFields = [
+                $('select[name="type[' + stepIndex + ']"]').closest('.fitem'),
+                $('input[name="main_title[' + stepIndex + ']"]').closest('.fitem'),
+                $('input[name="sub_heading[' + stepIndex + ']"]').closest('.fitem'),
+                $('textarea[name="content_paragraphs[' + stepIndex + '][text]"]').closest('.fitem'),
+                $('input[name="term[' + stepIndex + ']"]').closest('.fitem'),
+                $('input[name="phonetic[' + stepIndex + ']"]').closest('.fitem'),
+                $('textarea[name="definition[' + stepIndex + ']"]').closest('.fitem'),
+                $('textarea[name="example[' + stepIndex + ']"]').closest('.fitem'),
+                $('input[name="audio_file[' + stepIndex + ']"]').closest('.fitem'),
+                $('select[name="response_text[' + stepIndex + ']"]').closest('.fitem'),
+                $('button[name="remove_step[' + stepIndex + ']"]').closest('.fitem')
+            ];
+            
+            // Filter out empty elements
+            stepFields = stepFields.filter(function($field) {
+                return $field.length > 0;
+            });
+            
+            if (stepFields.length === 0) {
+                console.log('No fields found for step ' + stepIndex);
+                return;
+            }
+            
+            // Get the first field's parent container to insert card before it
+            var $firstField = stepFields[0];
+            var $parent = $firstField.parent();
+            
+            // Create card container
+            var $card = $('<div>', {
+                'class': 'stepbystep-step-card',
+                'data-step-index': stepIndex
+            });
+            
+            // Create card header with number
+            var $cardHeader = $('<div>', {
+                'class': 'stepbystep-step-card-header'
+            });
+            
+            var $cardNumber = $('<div>', {
+                'class': 'stepbystep-step-card-number',
+                text: '#' + (index + 1)
+            });
+            
+            var $cardTitle = $('<div>', {
+                'class': 'stepbystep-step-card-title',
+                text: 'Step ' + (index + 1)
+            });
+            
+            $cardHeader.append($cardNumber);
+            $cardHeader.append($cardTitle);
+            
+            // Create card body
+            var $cardBody = $('<div>', {
+                'class': 'stepbystep-step-card-body'
+            });
+            
+            // Assemble card (header first, then body)
+            $card.append($cardHeader);
+            $card.append($cardBody);
+            
+            // Insert card before first field
+            $firstField.before($card);
+            
+            // Move all fields into card body (this will move them from their current position)
+            stepFields.forEach(function($field) {
+                $cardBody.append($field);
+            });
+            
+            stepCards.push({
+                index: stepIndex,
+                card: $card,
+                number: index + 1
+            });
+            
+            console.log('Wrapped step ' + stepIndex + ' into card #' + (index + 1));
+        });
+        
+        console.log('Wrapped ' + stepCards.length + ' steps into cards');
+        return stepCards;
+    }
+    
+    /**
+     * Update step card numbers
+     */
+    function updateStepCardNumbers() {
+        console.log('Updating step card numbers...');
+        
+        var $cards = $('.stepbystep-step-card');
+        $cards.each(function(index) {
+            var $card = $(this);
+            var $cardNumber = $card.find('.stepbystep-step-card-number');
+            var $cardTitle = $card.find('.stepbystep-step-card-title');
+            
+            var stepNumber = index + 1;
+            $cardNumber.text('#' + stepNumber);
+            $cardTitle.text('Step ' + stepNumber);
+            
+            console.log('Updated card number to #' + stepNumber);
+        });
+        
+        console.log('Updated ' + $cards.length + ' card numbers');
+    }
+    
+    /**
      * Add CSS classes to help with styling and functionality
      */
     function addHelperClasses() {
@@ -486,6 +630,9 @@ define(['jquery'], function($) {
         // Update the steps count field
         var newStepCount = $typeSelects.length;
         $('input[name="steps"]').val(newStepCount);
+        
+        // Update step card numbers after reindexing
+        updateStepCardNumbers();
         
         console.log('Reindexed steps, new count:', newStepCount);
     }
@@ -764,7 +911,7 @@ define(['jquery'], function($) {
         
         // Make API call
         $.ajax({
-            url: 'https://ai.ieltscheckmate.edu.vn/api/moodle/generate-vocalbulary',
+            url: 'https://ai.microgem.io.vn/api/moodle/generate-vocalbulary',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(requestData),
@@ -921,7 +1068,7 @@ define(['jquery'], function($) {
         
         // Make API call
         $.ajax({
-            url: 'https://ai.ieltscheckmate.edu.vn/api/moodle/generate-question-from-text',
+            url: 'https://ai.microgem.io.vn/api/moodle/generate-question-from-text',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(requestData),
@@ -1084,6 +1231,10 @@ define(['jquery'], function($) {
                     // Update remove buttons and scroll after populating
                     setTimeout(function() {
                         updateRemoveButtons();
+                        
+                        // Wrap new steps into cards and update numbers
+                        wrapStepsIntoCards();
+                        updateStepCardNumbers();
                         
                         // Scroll to bottom for auto-add mode to show newly added steps
                         if (isAutoAdd) {

@@ -119,10 +119,13 @@ $string['quiz_type_short_answer'] = 'Short-answer questions';
 $string['quiz_type_random'] = 'Random mix of question types';
 $string['level'] = 'Level';
 $string['level_help'] = 'Select the level type for vocabulary generation: Vocabulary for individual terms, or Collection for grouped vocabulary sets';
-$string['generate_question_from_text'] = 'Generate Questions from Text';
-$string['generate_question_from_text_help'] = 'Click to generate questions from existing text content in the steps';
 $string['generate_vocabulary'] = 'Generate Vocabulary';
 $string['generate_vocabulary_help'] = 'Click to automatically generate vocabulary terms based on the activity name';
+
+// Text generation
+$string['text_generation'] = 'Text Generation';
+$string['generate_question_from_text'] = 'Generate Questions from Text';
+$string['generate_question_from_text_help'] = 'Click to generate questions from existing text content in the steps';
 $string['generating'] = 'Generating...';
 $string['generation_success'] = 'Successfully generated {$a} vocabulary terms';
 $string['generation_error'] = 'Error generating vocabulary: {$a}';

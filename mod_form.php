@@ -146,6 +146,9 @@ class mod_stepbystep_mod_form extends moodleform_mod {
             array('id' => 'generate_vocabulary_btn'));
         $mform->addHelpButton('generate_vocabulary', 'generate_vocabulary', 'mod_stepbystep');
         
+        // Adding the "text generation" section for text type steps
+        $mform->addElement('header', 'text_generation', get_string('text_generation', 'mod_stepbystep'));
+        
         // Generate question from text button
         $mform->addElement('button', 'generate_question_from_text', get_string('generate_question_from_text', 'mod_stepbystep'), 
             array('id' => 'generate_question_from_text_btn'));
