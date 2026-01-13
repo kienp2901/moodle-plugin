@@ -1098,22 +1098,123 @@ define(['jquery'], function($) {
     }
 
     /**
+     * Check if a step is empty (has no content)
+     */
+    function isStepEmpty(stepIndex) {
+        // Check vocabulary fields
+        var term = $('input[name="term[' + stepIndex + ']"]').val() || '';
+        var definition = $('textarea[name="definition[' + stepIndex + ']"]').val() || '';
+        var example = $('textarea[name="example[' + stepIndex + ']"]').val() || '';
+        
+        // Check text fields
+        var mainTitle = $('input[name="main_title[' + stepIndex + ']"]').val() || '';
+        var subHeading = $('input[name="sub_heading[' + stepIndex + ']"]').val() || '';
+        
+        // Check content paragraphs (textarea or TinyMCE)
+        var contentParagraphs = '';
+        var $contentEditor = $('textarea[name="content_paragraphs[' + stepIndex + '][text]"]');
+        if ($contentEditor.length > 0) {
+            var editorId = $contentEditor.attr('id');
+            if (editorId && typeof tinymce !== 'undefined') {
+                var editor = tinymce.get(editorId);
+                if (editor) {
+                    contentParagraphs = editor.getContent() || '';
+                } else {
+                    contentParagraphs = $contentEditor.val() || '';
+                }
+            } else {
+                contentParagraphs = $contentEditor.val() || '';
+            }
+        }
+        
+        // Step is empty if all fields are empty
+        return term.trim() === '' && 
+               definition.trim() === '' && 
+               example.trim() === '' && 
+               mainTitle.trim() === '' && 
+               subHeading.trim() === '' && 
+               contentParagraphs.trim() === '';
+    }
+    
+    /**
+     * Remove a step by index
+     */
+    function removeStepByIndex(stepIndex) {
+        console.log('Removing step at index:', stepIndex);
+        
+        // Find the card containing this step (if exists)
+        var $typeSelect = $('select[name="type[' + stepIndex + ']"]');
+        var $stepCard = $typeSelect.closest('.stepbystep-step-card');
+        
+        if ($stepCard.length > 0) {
+            // If wrapped in card, remove the entire card
+            $stepCard.remove();
+            console.log('Removed step card for index:', stepIndex);
+        } else {
+            // Otherwise, remove individual field containers
+            var stepFieldContainers = [
+                $('input[name="main_title[' + stepIndex + ']"]').closest('.fitem'),
+                $('input[name="sub_heading[' + stepIndex + ']"]').closest('.fitem'),
+                $('textarea[name="content_paragraphs[' + stepIndex + '][text]"]').closest('.fitem'),
+                $('input[name="term[' + stepIndex + ']"]').closest('.fitem'),
+                $('input[name="phonetic[' + stepIndex + ']"]').closest('.fitem'),
+                $('textarea[name="definition[' + stepIndex + ']"]').closest('.fitem'),
+                $('textarea[name="example[' + stepIndex + ']"]').closest('.fitem'),
+                $('input[name="audio_file[' + stepIndex + ']"]').closest('.fitem'),
+                $('select[name="response_text[' + stepIndex + ']"]').closest('.fitem'),
+                $('select[name="type[' + stepIndex + ']"]').closest('.fitem'),
+                $('button[name="remove_step[' + stepIndex + ']"]').closest('.fitem')
+            ];
+            
+            // Remove all field containers for this step
+            var removedCount = 0;
+            stepFieldContainers.forEach(function($container) {
+                if ($container.length > 0) {
+                    $container.remove();
+                    removedCount++;
+                }
+            });
+            
+            console.log('Removed', removedCount, 'field containers for step index:', stepIndex);
+        }
+        
+        // Update step indices and remove buttons
+        setTimeout(function() {
+            reindexSteps();
+            updateRemoveButtons();
+            updateStepCardNumbers();
+        }, 100);
+    }
+
+    /**
      * Generate vocabulary steps from API response
      */
     function generateVocabularySteps(vocabulary) {
         // Get current step count
         var currentSteps = parseInt($('input[name="steps"]').val()) || 0;
         
+        // Check if first step (index 0) is empty
+        var firstStepIsEmpty = currentSteps > 0 && isStepEmpty(0);
+        var startIndex = firstStepIsEmpty ? 0 : currentSteps;
+        
+        if (firstStepIsEmpty) {
+            console.log('First step is empty, will populate vocabulary from index 0 and remove empty step later');
+        }
+        
         // Calculate total steps needed
-        var totalSteps = currentSteps + vocabulary.length;
+        // If first step is empty, we'll use it for vocabulary, so we only need to add (vocabulary.length - 1) more steps
+        // Otherwise, we need to add vocabulary.length steps
+        var stepsToAdd = firstStepIsEmpty ? Math.max(0, vocabulary.length - 1) : vocabulary.length;
+        var totalSteps = currentSteps + stepsToAdd;
         
         // Update the steps count to add new steps
         $('input[name="steps"]').val(totalSteps);
         
         // Store vocabulary data in sessionStorage for after page reload
         sessionStorage.setItem('stepbystep_generated_vocabulary', JSON.stringify(vocabulary));
-        sessionStorage.setItem('stepbystep_current_steps', currentSteps);
+        sessionStorage.setItem('stepbystep_current_steps', startIndex);
         sessionStorage.setItem('stepbystep_auto_add_steps', 'true');
+        sessionStorage.setItem('stepbystep_first_step_empty', firstStepIsEmpty ? 'true' : 'false');
         
         // Automatically trigger the Add step button by simulating a click
         var $addButton = $('input[name="steps_add"]');
@@ -1183,14 +1284,16 @@ define(['jquery'], function($) {
         var vocabularyData = sessionStorage.getItem('stepbystep_generated_vocabulary');
         var currentSteps = sessionStorage.getItem('stepbystep_current_steps');
         var autoAddSteps = sessionStorage.getItem('stepbystep_auto_add_steps');
+        var firstStepEmpty = sessionStorage.getItem('stepbystep_first_step_empty');
         
-        if (vocabularyData && currentSteps) {
+        if (vocabularyData && currentSteps !== null) {
             try {
                 var vocabulary = JSON.parse(vocabularyData);
                 var startIndex = parseInt(currentSteps);
                 var isAutoAdd = autoAddSteps === 'true';
+                var isFirstStepEmpty = firstStepEmpty === 'true';
                 
-                console.log('Populating generated vocabulary (auto-add: ' + isAutoAdd + '):', vocabulary);
+                console.log('Populating generated vocabulary (auto-add: ' + isAutoAdd + ', first-step-empty: ' + isFirstStepEmpty + '):', vocabulary);
                 console.log('Starting from step index:', startIndex);
                 
                 // Wait a bit for the form to fully load, especially for auto-add mode
@@ -1236,6 +1339,30 @@ define(['jquery'], function($) {
                         wrapStepsIntoCards();
                         updateStepCardNumbers();
                         
+                        // Check and remove empty step at the end (if exists)
+                        var $allTypeSelects = $('select[name^="type["]');
+                        if ($allTypeSelects.length > 0) {
+                            // Get the last step index
+                            var lastStepIndex = -1;
+                            $allTypeSelects.each(function() {
+                                var stepIndex = getStepIndex($(this));
+                                if (stepIndex > lastStepIndex) {
+                                    lastStepIndex = stepIndex;
+                                }
+                            });
+                            
+                            // Check if last step is empty and remove it
+                            if (lastStepIndex >= 0 && isStepEmpty(lastStepIndex)) {
+                                console.log('Last step (index ' + lastStepIndex + ') is empty, removing it');
+                                removeStepByIndex(lastStepIndex);
+                                
+                                // Update steps count
+                                var newStepCount = $('select[name^="type["]').length;
+                                $('input[name="steps"]').val(newStepCount);
+                                console.log('Updated steps count to:', newStepCount);
+                            }
+                        }
+                        
                         // Scroll to bottom for auto-add mode to show newly added steps
                         if (isAutoAdd) {
                             $('html, body').animate({
@@ -1254,6 +1381,7 @@ define(['jquery'], function($) {
                     sessionStorage.removeItem('stepbystep_generated_vocabulary');
                     sessionStorage.removeItem('stepbystep_current_steps');
                     sessionStorage.removeItem('stepbystep_auto_add_steps');
+                    sessionStorage.removeItem('stepbystep_first_step_empty');
                     console.log('Session storage cleared after vocabulary population');
                 }, vocabulary.length * (isAutoAdd ? 300 : 100) + 2000);
                 
@@ -1262,6 +1390,7 @@ define(['jquery'], function($) {
                 sessionStorage.removeItem('stepbystep_generated_vocabulary');
                 sessionStorage.removeItem('stepbystep_current_steps');
                 sessionStorage.removeItem('stepbystep_auto_add_steps');
+                sessionStorage.removeItem('stepbystep_first_step_empty');
             }
         }
     }
