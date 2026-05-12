@@ -41,14 +41,16 @@ use moodle_exception;
 /**
  * External API class for Reading Flow module
  */
-class mod_readingflow_external extends external_api {
+class mod_readingflow_external extends external_api
+{
 
     /**
      * Returns description of method parameters for create_readingflow
      *
      * @return external_function_parameters
      */
-    public static function create_readingflow_parameters() {
+    public static function create_readingflow_parameters()
+    {
         return new external_function_parameters(
             array(
                 'courseid' => new external_value(PARAM_INT, 'Course ID'),
@@ -63,6 +65,7 @@ class mod_readingflow_external extends external_api {
                 'visible' => new external_value(PARAM_INT, 'Visible', VALUE_DEFAULT, 1),
                 'visibleoncoursepage' => new external_value(PARAM_INT, 'Visible on course page', VALUE_DEFAULT, 1),
                 'availabilityconditionsjson' => new external_value(PARAM_RAW, 'Availability conditions JSON', VALUE_DEFAULT, ''),
+                'completion' => new external_value(PARAM_INT, 'Completion tracking (0=none,1=manual,2=auto)', VALUE_DEFAULT, 0),
                 'completionunlocked' => new external_value(PARAM_INT, 'Completion unlocked', VALUE_DEFAULT, 1),
                 'completionview' => new external_value(PARAM_INT, 'Completion view', VALUE_DEFAULT, 0),
                 'completionexpected' => new external_value(PARAM_INT, 'Completion expected', VALUE_DEFAULT, 0),
@@ -88,6 +91,7 @@ class mod_readingflow_external extends external_api {
      * @param int $visibleoncoursepage Visible on course page
      * @param string $availabilityconditionsjson Availability conditions JSON
      * @param int $completionunlocked Completion unlocked
+     * @param int $completion Completion tracking
      * @param int $completionview Completion view
      * @param int $completionexpected Completion expected
      * @param string $tags Tags
@@ -95,13 +99,26 @@ class mod_readingflow_external extends external_api {
      * @return array
      * @throws moodle_exception
      */
-    public static function create_readingflow($courseid, $name, $intro = '', $introformat = FORMAT_HTML, 
-                                         $content = '', $contentformat = FORMAT_HTML,
-                                         $lumos_reading_id = 0, $lumos_reading_slug = '',
-                                         $section = 0, $visible = 1, $visibleoncoursepage = 1,
-                                         $availabilityconditionsjson = '', $completionunlocked = 1,
-                                         $completionview = 0, $completionexpected = 0, $tags = '',
-                                         $showdescription = 0) {
+    public static function create_readingflow(
+        $courseid,
+        $name,
+        $intro = '',
+        $introformat = FORMAT_HTML,
+        $content = '',
+        $contentformat = FORMAT_HTML,
+        $lumos_reading_id = 0,
+        $lumos_reading_slug = '',
+        $section = 0,
+        $visible = 1,
+        $visibleoncoursepage = 1,
+        $availabilityconditionsjson = '',
+        $completionunlocked = 1,
+        $completion = 0,
+        $completionview = 0,
+        $completionexpected = 0,
+        $tags = '',
+        $showdescription = 0
+    ) {
         global $DB, $CFG;
 
         // Validate parameters
@@ -118,6 +135,7 @@ class mod_readingflow_external extends external_api {
             'visible' => $visible,
             'visibleoncoursepage' => $visibleoncoursepage,
             'availabilityconditionsjson' => $availabilityconditionsjson,
+            'completion' => $completion,
             'completionunlocked' => $completionunlocked,
             'completionview' => $completionview,
             'completionexpected' => $completionexpected,
@@ -154,6 +172,7 @@ class mod_readingflow_external extends external_api {
         $data->visible = $params['visible'];
         $data->visibleoncoursepage = $params['visibleoncoursepage'];
         $data->availabilityconditionsjson = $params['availabilityconditionsjson'];
+        $data->completion = $params['completion'];
         $data->completionunlocked = $params['completionunlocked'];
         $data->completionview = $params['completionview'];
         $data->completionexpected = $params['completionexpected'];
@@ -191,7 +210,8 @@ class mod_readingflow_external extends external_api {
      *
      * @return external_single_structure
      */
-    public static function create_readingflow_returns() {
+    public static function create_readingflow_returns()
+    {
         return new external_single_structure(
             array(
                 'id' => new external_value(PARAM_INT, 'Reading flow instance ID'),
@@ -216,7 +236,8 @@ class mod_readingflow_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function update_readingflow_parameters() {
+    public static function update_readingflow_parameters()
+    {
         return new external_function_parameters([
             'cmid' => new external_value(PARAM_INT, 'Course module ID của readingflow cần cập nhật'),
             'fields' => new external_multiple_structure(
@@ -260,7 +281,8 @@ class mod_readingflow_external extends external_api {
      * @return array
      * @throws moodle_exception
      */
-    public static function update_readingflow($cmid, $fields) {
+    public static function update_readingflow($cmid, $fields)
+    {
         global $DB;
 
         // Validate parameters
@@ -291,14 +313,14 @@ class mod_readingflow_external extends external_api {
 
         // Update readingflow record
         $result = $DB->update_record('readingflow', $readingflow);
-        
+
         if (!$result) {
             throw new moodle_exception('errorupdatingreadingflow', 'mod_readingflow');
         }
 
         // Get course_modules record for availability update
         $cm_record = $DB->get_record('course_modules', ['id' => $cmid], '*', MUST_EXIST);
-        
+
         // Handle availability if provided
         if (!empty($params['fields'][0]) && !empty($params['fields'][0]['availability'])) {
             $availability_params = $params['fields'][0]['availability'];
@@ -307,7 +329,7 @@ class mod_readingflow_external extends external_api {
             if (!is_array($completioncmids)) {
                 $completioncmids = [$completioncmids];
             }
-            
+
             $availability_json = self::generate_availability_conditions(
                 $availability_params['timeopen'] ?? null,
                 $availability_params['timeclose'] ?? null,
@@ -316,7 +338,7 @@ class mod_readingflow_external extends external_api {
                 $availability_params['max'] ?? null,
                 $completioncmids
             );
-            
+
             // Update availability in course_modules table
             $cm_record->availability = $availability_json;
         } else {
@@ -331,7 +353,7 @@ class mod_readingflow_external extends external_api {
 
         if (!empty($params['fields'][0]) && isset($params['fields'][0]['section'])) {
             $section = $DB->get_record('course_sections', array('course' => $cm1->course, 'section' => $params['fields'][0]['section']));
-            
+
             if ($section && $section->id != $cm1->section) {
                 // Cập nhật section mới
                 self::move_activity_to_section($cm1->course, $cmid, $params['fields'][0]['section']);
@@ -346,12 +368,12 @@ class mod_readingflow_external extends external_api {
         $completionview = 0;
         $completionexpected = 0;
         if (!empty($params['fields'][0]) && !empty($params['fields'][0]['completion'])) {
-            if($params['fields'][0]['completion'] == 1){
+            if ($params['fields'][0]['completion'] == 1) {
                 $completion = $params['fields'][0]['completion'];
                 $completionexpected = $params['fields'][0]['completionexpected'] ?? 0;
             }
 
-            if($params['fields'][0]['completion'] == 2){
+            if ($params['fields'][0]['completion'] == 2) {
                 $completion = $params['fields'][0]['completion'];
                 $completionview = $params['fields'][0]['completionview'] ?? 0;
                 $completionexpected = $params['fields'][0]['completionexpected'] ?? 0;
@@ -362,7 +384,7 @@ class mod_readingflow_external extends external_api {
         $cm1->completionexpected = $completionexpected;
 
         $cm1->showdescription = (!empty($params['fields'][0]) && isset($params['fields'][0]['showdescription'])) ? $params['fields'][0]['showdescription'] : 0;
-        
+
         $DB->update_record('course_modules', $cm1);
 
         rebuild_course_cache($cm1->course, true);
@@ -380,7 +402,8 @@ class mod_readingflow_external extends external_api {
      *
      * @return external_single_structure
      */
-    public static function update_readingflow_returns() {
+    public static function update_readingflow_returns()
+    {
         return new external_single_structure([
             'status' => new external_value(PARAM_TEXT, 'Kết quả của thao tác'),
             'message' => new external_value(PARAM_TEXT, 'Thông báo kết quả'),
@@ -394,7 +417,8 @@ class mod_readingflow_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function get_readingflow_parameters() {
+    public static function get_readingflow_parameters()
+    {
         return new external_function_parameters(
             array(
                 'cmid' => new external_value(PARAM_INT, 'Course module ID'),
@@ -409,7 +433,8 @@ class mod_readingflow_external extends external_api {
      * @return array
      * @throws moodle_exception
      */
-    public static function get_readingflow($cmid) {
+    public static function get_readingflow($cmid)
+    {
         global $DB;
 
         // Validate parameters
@@ -457,7 +482,8 @@ class mod_readingflow_external extends external_api {
      *
      * @return external_single_structure
      */
-    public static function get_readingflow_returns() {
+    public static function get_readingflow_returns()
+    {
         return new external_single_structure(
             array(
                 'id' => new external_value(PARAM_INT, 'Reading flow instance ID'),
@@ -489,7 +515,8 @@ class mod_readingflow_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function delete_readingflow_parameters() {
+    public static function delete_readingflow_parameters()
+    {
         return new external_function_parameters(
             array(
                 'cmid' => new external_value(PARAM_INT, 'Course module ID'),
@@ -504,7 +531,8 @@ class mod_readingflow_external extends external_api {
      * @return array
      * @throws moodle_exception
      */
-    public static function delete_readingflow($cmid) {
+    public static function delete_readingflow($cmid)
+    {
         global $DB;
 
         // Validate parameters
@@ -538,7 +566,8 @@ class mod_readingflow_external extends external_api {
      *
      * @return external_single_structure
      */
-    public static function delete_readingflow_returns() {
+    public static function delete_readingflow_returns()
+    {
         return new external_single_structure(
             array(
                 'success' => new external_value(PARAM_BOOL, 'Success status'),
@@ -558,7 +587,8 @@ class mod_readingflow_external extends external_api {
      * @param array|null $completioncmids Completion conditions based on activity IDs.
      * @return string JSON string of availability conditions.
      */
-    private static function generate_availability_conditions($timeopen = null, $timeclose = null, $gradeitemid = null, $min = null, $max = null, $completioncmids = null) {
+    private static function generate_availability_conditions($timeopen = null, $timeclose = null, $gradeitemid = null, $min = null, $max = null, $completioncmids = null)
+    {
         $conditions = [];
         $showc = [];
 
@@ -570,9 +600,9 @@ class mod_readingflow_external extends external_api {
                 "t" => $timeopen
             ];
             $showc[] = false;
-            
+
             $conditions[] = [
-                "type" => "date", 
+                "type" => "date",
                 "d" => ">=",
                 "t" => $timeclose
             ];
@@ -580,7 +610,7 @@ class mod_readingflow_external extends external_api {
         } elseif ($timeopen !== null) {
             $conditions[] = [
                 "type" => "date",
-                "d" => "<", 
+                "d" => "<",
                 "t" => $timeopen
             ];
             $showc[] = false;
@@ -603,10 +633,10 @@ class mod_readingflow_external extends external_api {
                 ];
                 $showc[] = true;
             }
-            
+
             if ($max !== null) {
                 $conditions[] = [
-                    "type" => "grade", 
+                    "type" => "grade",
                     "id" => $gradeitemid,
                     "max" => $max
                 ];
@@ -641,7 +671,8 @@ class mod_readingflow_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function move_activity_to_section_parameters() {
+    public static function move_activity_to_section_parameters()
+    {
         return new external_function_parameters(
             array(
                 'courseid' => new external_value(PARAM_INT, 'id of course'),
@@ -661,7 +692,8 @@ class mod_readingflow_external extends external_api {
      * @param int $newsection The ID of the section to move the activity to.
      * @return null.
      */
-    public static function move_activity_to_section($courseid, $moduleid, $newsection) {
+    public static function move_activity_to_section($courseid, $moduleid, $newsection)
+    {
         global $DB, $USER;
 
         // Validate parameters passed from web service.
@@ -715,7 +747,8 @@ class mod_readingflow_external extends external_api {
      *
      * @return external_description
      */
-    public static function move_activity_to_section_returns() {
+    public static function move_activity_to_section_returns()
+    {
         return null;
     }
 }
