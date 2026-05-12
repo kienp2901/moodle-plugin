@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2022112804;       // The current module version (Date: YYYYMMDDXX).
-$plugin->requires  = 2022111800;    // Requires this Moodle version.
+$plugin->version = 2024051200;       // The current module version (Date: YYYYMMDDXX).
+$plugin->requires = 2022111800;    // Requires this Moodle version.
 $plugin->component = 'mod_checkmatepdf';       // Full name of the plugin (used for diagnostics)
-$plugin->cron      = 0;
+$plugin->cron = 0;

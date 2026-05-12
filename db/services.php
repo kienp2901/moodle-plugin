@@ -19,31 +19,52 @@
  *
  * @package    mod_checkmatepdf
  * @category   external
- * @copyright  2015 Juan Leyva <juan@moodle.com>
+ * @copyright  2024
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since      Moodle 3.0
  */
 
 defined('MOODLE_INTERNAL') || die;
 
 $functions = array(
 
-    // 'mod_checkmatepdf_view_checkmatepdf' => array(
-    //     'classname'     => 'mod_checkmatepdf_external',
-    //     'methodname'    => 'view_checkmatepdf',
-    //     'description'   => 'Simulate the view.php web interface checkmatepdf: trigger events, completion, etc...',
-    //     'type'          => 'write',
-    //     'capabilities'  => 'mod/checkmatepdf:view',
-    //     'services'      => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
-    // ),
+    'mod_checkmatepdf_create_checkmatepdf' => array(
+        'classname' => 'mod_checkmatepdf_external',
+        'methodname' => 'create_checkmatepdf',
+        'classpath' => 'mod/checkmatepdf/externallib.php',
+        'description' => 'Create a new checkmatepdf activity instance',
+        'type' => 'write',
+        'capabilities' => 'mod/checkmatepdf:addinstance',
+        'ajax' => true,
+    ),
 
-    // 'mod_checkmatepdf_get_questions_list_by_courses' => array(
-    //     'classname'     => 'mod_checkmatepdf_external',
-    //     'methodname'    => 'get_questions_list_by_courses',
-    //     'description'   => 'Returns a list of checkmatepdf in a provided list of courses, if no list is provided all checkmatepdf that the user
-    //                         can view will be returned.',
-    //     'type'          => 'read',
-    //     'capabilities'  => 'mod/checkmatepdf:view',
-    //     'services'      => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
-    // ),
+    'mod_checkmatepdf_get_checkmatepdf' => array(
+        'classname' => 'mod_checkmatepdf_external',
+        'methodname' => 'get_checkmatepdf',
+        'classpath' => 'mod/checkmatepdf/externallib.php',
+        'description' => 'Get checkmatepdf instance details',
+        'type' => 'read',
+        'capabilities' => 'mod/checkmatepdf:view',
+        'ajax' => true,
+    ),
+
+    'mod_checkmatepdf_update_checkmatepdf' => array(
+        'classname' => 'mod_checkmatepdf_external',
+        'methodname' => 'update_checkmatepdf',
+        'classpath' => 'mod/checkmatepdf/externallib.php',
+        'description' => 'Update an existing checkmatepdf instance',
+        'type' => 'write',
+        'capabilities' => 'mod/checkmatepdf:addinstance',
+        'ajax' => true,
+    ),
+
+    'mod_checkmatepdf_delete_checkmatepdf' => array(
+        'classname' => 'mod_checkmatepdf_external',
+        'methodname' => 'delete_checkmatepdf',
+        'classpath' => 'mod/checkmatepdf/externallib.php',
+        'description' => 'Delete a checkmatepdf instance',
+        'type' => 'write',
+        'capabilities' => 'mod/checkmatepdf:addinstance',
+        'ajax' => true,
+    ),
+
 );

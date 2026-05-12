@@ -25,37 +25,62 @@
 defined('MOODLE_INTERNAL') || die;
 
 $capabilities = array(
+
     'mod/checkmatepdf:view' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
             'guest' => CAP_ALLOW,
             'user' => CAP_ALLOW,
-        )
+            'student' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ),
     ),
 
     'mod/checkmatepdf:addinstance' => array(
         'riskbitmask' => RISK_XSS,
-
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
         ),
-        'clonepermissionsfrom' => 'moodle/course:manageactivities'
+        'clonepermissionsfrom' => 'moodle/course:manageactivities',
     ),
 
+    'mod/checkmatepdf:create' => array(
+        'riskbitmask' => RISK_XSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ),
+        'clonepermissionsfrom' => 'mod/checkmatepdf:addinstance',
+    ),
 
-/* TODO: review public portfolio API first!
-    'mod/checkmatepdf:portfolioexport' => array(
-
-        'captype' => 'read',
+    'mod/checkmatepdf:update' => array(
+        'riskbitmask' => RISK_XSS,
+        'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
-            'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-        )
+            'manager' => CAP_ALLOW,
+        ),
+        'clonepermissionsfrom' => 'mod/checkmatepdf:addinstance',
     ),
-*/
+
+    'mod/checkmatepdf:delete' => array(
+        'riskbitmask' => RISK_XSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ),
+        'clonepermissionsfrom' => 'mod/checkmatepdf:addinstance',
+    ),
+
 );
