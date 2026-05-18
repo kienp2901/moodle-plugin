@@ -24,10 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component   = 'mod_stepbystep';
-$plugin->version     = 2024121991;
-$plugin->requires    = 2023100900; // Moodle 4.3
-$plugin->maturity    = MATURITY_ALPHA;
+$plugin->component = 'mod_stepbystep';
+$plugin->version = 2024121992;
+$plugin->requires = 2023100900; // Moodle 4.3
+$plugin->maturity = MATURITY_ALPHA;
 $plugin->supported = [403, 404];
-$plugin->release     = 'v0.1.9';
+$plugin->release = 'v0.1.9';
 $plugin->dependencies = array();

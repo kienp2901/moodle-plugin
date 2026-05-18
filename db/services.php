@@ -33,7 +33,7 @@ $functions = array(
         'ajax' => true,
         'capabilities' => 'mod/stepbystep:view'
     ),
-    
+
     // CRUD services for stepbystep
     'mod_stepbystep_create_stepbystep' => array(
         'classname' => 'mod_stepbystep_external',
@@ -44,7 +44,7 @@ $functions = array(
         'capabilities' => 'mod/stepbystep:addinstance',
         'ajax' => true,
     ),
-    
+
     'mod_stepbystep_get_stepbystep' => array(
         'classname' => 'mod_stepbystep_external',
         'methodname' => 'get_stepbystep',
@@ -54,7 +54,7 @@ $functions = array(
         'capabilities' => 'mod/stepbystep:view',
         'ajax' => true,
     ),
-    
+
     'mod_stepbystep_update_stepbystep' => array(
         'classname' => 'mod_stepbystep_external',
         'methodname' => 'update_stepbystep',
@@ -64,7 +64,7 @@ $functions = array(
         'capabilities' => 'mod/stepbystep:addinstance',
         'ajax' => true,
     ),
-    
+
     'mod_stepbystep_delete_stepbystep' => array(
         'classname' => 'mod_stepbystep_external',
         'methodname' => 'delete_stepbystep',
@@ -74,7 +74,7 @@ $functions = array(
         'capabilities' => 'mod/stepbystep:addinstance',
         'ajax' => true,
     ),
-    
+
     'mod_stepbystep_list_stepbystep' => array(
         'classname' => 'mod_stepbystep_external',
         'methodname' => 'list_stepbystep',
@@ -84,7 +84,7 @@ $functions = array(
         'capabilities' => 'mod/stepbystep:view',
         'ajax' => true,
     ),
-    
+
     // CRUD services for stepbystep_content
     'mod_stepbystep_create_content' => array(
         'classname' => 'mod_stepbystep_external',
@@ -95,7 +95,7 @@ $functions = array(
         'capabilities' => 'mod/stepbystep:addinstance',
         'ajax' => true,
     ),
-    
+
     'mod_stepbystep_get_content' => array(
         'classname' => 'mod_stepbystep_external',
         'methodname' => 'get_content',
@@ -105,7 +105,7 @@ $functions = array(
         'capabilities' => 'mod/stepbystep:view',
         'ajax' => true,
     ),
-    
+
     'mod_stepbystep_update_content' => array(
         'classname' => 'mod_stepbystep_external',
         'methodname' => 'update_content',
@@ -115,7 +115,7 @@ $functions = array(
         'capabilities' => 'mod/stepbystep:addinstance',
         'ajax' => true,
     ),
-    
+
     'mod_stepbystep_delete_content' => array(
         'classname' => 'mod_stepbystep_external',
         'methodname' => 'delete_content',
@@ -125,7 +125,7 @@ $functions = array(
         'capabilities' => 'mod/stepbystep:addinstance',
         'ajax' => true,
     ),
-    
+
     'mod_stepbystep_list_contents' => array(
         'classname' => 'mod_stepbystep_external',
         'methodname' => 'list_contents',
@@ -135,7 +135,7 @@ $functions = array(
         'capabilities' => 'mod/stepbystep:view',
         'ajax' => true,
     ),
-    
+
     'mod_stepbystep_create_stepbystep_with_contents' => array(
         'classname' => 'mod_stepbystep_external',
         'methodname' => 'create_stepbystep_with_contents',
@@ -143,6 +143,16 @@ $functions = array(
         'description' => 'Create a new stepbystep instance with multiple content steps in one call',
         'type' => 'write',
         'capabilities' => 'mod/stepbystep:addinstance',
+        'ajax' => true,
+    ),
+
+    'mod_stepbystep_get_stepbystep_with_contents' => array(
+        'classname' => 'mod_stepbystep_external',
+        'methodname' => 'get_stepbystep_with_contents',
+        'classpath' => 'mod/stepbystep/externallib.php',
+        'description' => 'Get stepbystep activity info + all content steps',
+        'type' => 'read',
+        'capabilities' => 'mod/stepbystep:view',
         'ajax' => true,
     ),
 );
