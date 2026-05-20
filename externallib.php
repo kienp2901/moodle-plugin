@@ -57,6 +57,7 @@ class mod_checkmatepdf_external extends external_api
             'visible' => new external_value(PARAM_INT, 'Visible', VALUE_DEFAULT, 1),
             'visibleoncoursepage' => new external_value(PARAM_INT, 'Visible on course page', VALUE_DEFAULT, 1),
             'availabilityconditionsjson' => new external_value(PARAM_RAW, 'Availability JSON', VALUE_DEFAULT, ''),
+            'completion' => new external_value(PARAM_INT, 'Completion tracking (0=none,1=manual,2=auto)', VALUE_DEFAULT, 0),
             'completionunlocked' => new external_value(PARAM_INT, 'Completion unlocked', VALUE_DEFAULT, 1),
             'completionview' => new external_value(PARAM_INT, 'Completion view', VALUE_DEFAULT, 0),
             'completionexpected' => new external_value(PARAM_INT, 'Completion expected', VALUE_DEFAULT, 0),
@@ -76,6 +77,7 @@ class mod_checkmatepdf_external extends external_api
         $visible = 1,
         $visibleoncoursepage = 1,
         $availabilityconditionsjson = '',
+        $completion = 0,
         $completionunlocked = 1,
         $completionview = 0,
         $completionexpected = 0,
@@ -95,6 +97,7 @@ class mod_checkmatepdf_external extends external_api
             'visible' => $visible,
             'visibleoncoursepage' => $visibleoncoursepage,
             'availabilityconditionsjson' => $availabilityconditionsjson,
+            'completion' => $completion,
             'completionunlocked' => $completionunlocked,
             'completionview' => $completionview,
             'completionexpected' => $completionexpected,
@@ -121,6 +124,7 @@ class mod_checkmatepdf_external extends external_api
         $data->visible = $params['visible'];
         $data->visibleoncoursepage = $params['visibleoncoursepage'];
         $data->availabilityconditionsjson = $params['availabilityconditionsjson'];
+        $data->completion = $params['completion'];
         $data->completionunlocked = $params['completionunlocked'];
         $data->completionview = $params['completionview'];
         $data->completionexpected = $params['completionexpected'];
